@@ -12,7 +12,7 @@ datasource db {
 
 enum Role {
   VIEWER
-  ADMIN
+  AUTHOR
 }
 
 model User {
@@ -26,11 +26,12 @@ model User {
 }
 
 model Post {
-  id         Int      @id @default(autoincrement())
-  title      String
-  content    String
-  likes      Int
-  created_at DateTime @default(now())
+  id           Int      @id @default(autoincrement())
+  title        String
+  content      String
+  likes        Int
+  created_at   DateTime @default(now())
+  is_published Boolean  @default(false)
 
   comments Comment[]
 }
