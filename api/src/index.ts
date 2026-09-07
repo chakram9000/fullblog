@@ -4,6 +4,9 @@ import { Hono } from "hono";
 import { cors } from "hono/cors";
 import { csrf } from "hono/csrf";
 
+import auth from "./routers/auth.ts";
+import posts from "./routers/posts.ts";
+
 const app = new Hono();
 
 app.use(
@@ -11,9 +14,8 @@ app.use(
 	csrf({ origin: process.env.ORIGIN }),
 );
 
-app.get("/", (c) => {
-	return c.text("Hello Hono!");
-});
+app.route("/auth", auth);
+app.route("/api/posts", posts);
 
 serve(
 	{
