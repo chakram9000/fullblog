@@ -1,8 +1,9 @@
+import "dotenv/config";
 import type { Context } from "hono";
+import type { JWTPayloadValidators } from "./types.ts";
 
 export function zValidatorErrorsHook(result: any, c: Context) {
 	if (!result.success) {
-		console.log(result);
 		const errorFields = result.error.issues.map((value: any) => value.path[0]);
 		return c.json(
 			{
@@ -11,4 +12,13 @@ export function zValidatorErrorsHook(result: any, c: Context) {
 			401,
 		);
 	}
+}
+
+export function generateJwtPayloadValidators(): JWTPayloadValidators {
+	return {
+		exp: Math.floor(Date.now() / 1000) + 60 * 60, // Token expires in 1 hour
+		iat: Math.floor(Date.now() / 1000),
+		nbf: Math.floor(Date.now() / 1000),
+		iss: process.env.JWT_ISSUER!,
+	};
 }

@@ -1,19 +1,16 @@
 import "dotenv/config";
 import { Hono } from "hono";
 import { sign } from "hono/jwt";
-import type { JWTPayload, JWTPayloadValidators } from "../lib/types.ts";
+import type { JWTPayload } from "../lib/types.ts";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
 import { prisma } from "../lib/prisma.ts";
 import bcrypt from "bcryptjs";
-import { zValidatorErrorsHook } from "../lib/util.ts";
-
-const jwtPayloadValidators: JWTPayloadValidators = {
-	exp: Math.floor(Date.now() / 1000) + 60 * 60, // Token expires in 1 hour
-	iat: Math.floor(Date.now() / 1000),
-	nbf: Math.floor(Date.now() / 1000),
-	iss: process.env.JWT_ISSUER!,
-};
+import {
+	generateJwtPayloadValidators,
+	zValidatorErrorsHook,
+} from "../lib/util.ts";
+import type { SignatureAlgorithm } from "hono/utils/jwt/jwa";
 
 const app = new Hono();
 
@@ -54,10 +51,14 @@ app.post(
 			id: newUser.id,
 			email: newUser.email,
 			display_name: newUser.display_name,
-			...jwtPayloadValidators,
+			...generateJwtPayloadValidators(),
 		};
 
-		const token = await sign(payload, process.env.JWT_SECRET!, "HS256");
+		const token = await sign(
+			payload,
+			process.env.JWT_SECRET!,
+			process.env.JWT_ALG as SignatureAlgorithm,
+		);
 
 		return c.json({ token });
 	},
@@ -91,9 +92,13 @@ app.post(
 			id: user.id,
 			email: user.email,
 			display_name: user.display_name,
-			...jwtPayloadValidators,
+			...generateJwtPayloadValidators(),
 		};
-		const token = await sign(payload, process.env.JWT_SECRET!, "HS256");
+		const token = await sign(
+			payload,
+			process.env.JWT_SECRET!,
+			process.env.JWT_ALG as SignatureAlgorithm,
+		);
 
 		return c.json({ token });
 	},
