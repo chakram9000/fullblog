@@ -8,7 +8,11 @@ import { z } from "zod";
 import { zValidatorErrorsHook } from "../lib/util.ts";
 import { validateJWT } from "../lib/middlewares.ts";
 
+import comments from "./comments.ts";
+
 const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>();
+
+app.route("/:postId/comments", comments);
 
 app.get("/", async (c) => {
 	const posts = await prisma.post.findMany();
@@ -16,11 +20,11 @@ app.get("/", async (c) => {
 });
 
 app.get(
-	"/:id",
+	"/:postId",
 	zValidator(
 		"param",
 		z.object({
-			id: z.coerce.number().int(),
+			postId: z.coerce.number().int(),
 		}),
 		zValidatorErrorsHook,
 	),
@@ -28,7 +32,11 @@ app.get(
 		const param = c.req.valid("param");
 		const post = await prisma.post.findUnique({
 			where: {
-				id: param.id,
+				id: param.postId,
+			},
+			include: {
+				author: true,
+				comments: true,
 			},
 		});
 
@@ -46,8 +54,8 @@ app.post(
 	zValidator(
 		"form",
 		z.object({
-			title: z.string().min(3).max(128).trim(),
-			content: z.string().min(3).max(2048).trim(),
+			title: z.string().trim().min(3).max(128),
+			content: z.string().trim().min(3).max(2048),
 			is_published: z.stringbool().optional(),
 		}),
 		zValidatorErrorsHook,
@@ -73,20 +81,20 @@ app.post(
 );
 
 app.put(
-	"/:id",
+	"/:postId",
 	validateJWT,
 	zValidator(
 		"param",
 		z.object({
-			id: z.coerce.number().int(),
+			postId: z.coerce.number().int(),
 		}),
 		zValidatorErrorsHook,
 	),
 	zValidator(
 		"form",
 		z.object({
-			title: z.string().min(3).max(128).trim().optional(),
-			content: z.string().min(3).max(2048).trim().optional(),
+			title: z.string().trim().min(3).max(128).optional(),
+			content: z.string().trim().min(3).max(2048).optional(),
 			is_published: z.stringbool().optional(),
 		}),
 		zValidatorErrorsHook,
@@ -100,7 +108,7 @@ app.put(
 		const param = c.req.valid("param");
 		const existingPost = await prisma.post.findUnique({
 			where: {
-				id: param.id,
+				id: param.postId,
 			},
 		});
 
@@ -115,7 +123,7 @@ app.put(
 		const body = c.req.valid("form");
 		const newPost = await prisma.post.update({
 			where: {
-				id: param.id,
+				id: param.postId,
 			},
 			data: {
 				title: body.title,
@@ -129,12 +137,12 @@ app.put(
 );
 
 app.delete(
-	"/:id",
+	"/:postId",
 	validateJWT,
 	zValidator(
 		"param",
 		z.object({
-			id: z.coerce.number().int(),
+			postId: z.coerce.number().int(),
 		}),
 		zValidatorErrorsHook,
 	),
@@ -147,7 +155,7 @@ app.delete(
 		const param = c.req.valid("param");
 		const existingPost = await prisma.post.findUnique({
 			where: {
-				id: param.id,
+				id: param.postId,
 			},
 		});
 
@@ -161,7 +169,7 @@ app.delete(
 
 		const post = await prisma.post.delete({
 			where: {
-				id: param.id,
+				id: param.postId,
 			},
 		});
 

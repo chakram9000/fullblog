@@ -30,13 +30,13 @@ model Post {
   id           Int      @id @default(autoincrement())
   title        String
   content      String
-  authorId     Int      @map("userId")
   likes        Int      @default(0)
   created_at   DateTime @default(now())
   edited_at    DateTime @default(now())
   is_published Boolean  @default(false)
+  authorId     Int      @map("userId")
 
-  author   User      @relation(fields: [authorId], references: [id])
+  author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments Comment[]
 }
 
@@ -44,9 +44,9 @@ model Comment {
   id         Int      @id @default(autoincrement())
   content    String
   created_at DateTime @default(now())
+  authorId   Int
+  postId     Int
 
-  author   User @relation(fields: [authorId], references: [id])
-  post     Post @relation(fields: [postId], references: [id])
-  authorId Int
-  postId   Int
+  author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
+  post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
 }

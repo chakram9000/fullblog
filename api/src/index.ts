@@ -1,8 +1,6 @@
 import "dotenv/config";
 import { serve } from "@hono/node-server";
 import { Hono } from "hono";
-import { cors } from "hono/cors";
-import { csrf } from "hono/csrf";
 
 import auth from "./routers/auth.ts";
 import posts from "./routers/posts.ts";

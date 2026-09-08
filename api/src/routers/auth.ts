@@ -21,7 +21,7 @@ app.post(
 		"form",
 		z.object({
 			email: z.email(),
-			display_name: z.string().min(3).max(32).trim(),
+			display_name: z.string().trim().min(2).max(32),
 			password: z.string().min(8),
 		}),
 		zValidatorErrorsHook,
@@ -42,6 +42,10 @@ app.post(
 				email: body.email,
 				display_name: body.display_name,
 				password: hashedPassword,
+			},
+			omit: {
+				password: false,
+				role: false,
 			},
 		});
 
@@ -77,6 +81,10 @@ app.post(
 		const body = c.req.valid("form");
 		const user = await prisma.user.findUnique({
 			where: { email: body.email },
+			omit: {
+				password: false,
+				role: false,
+			},
 		});
 
 		if (!user) {
