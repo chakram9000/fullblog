@@ -1,22 +1,42 @@
 import "dotenv/config";
 import { Hono } from "hono";
-import { jwt, type JwtVariables } from "hono/jwt";
+import { type JwtVariables } from "hono/jwt";
 import type { JWTPayload } from "../lib/types.ts";
-import type { SignatureAlgorithm } from "hono/utils/jwt/jwa";
-
-const validateJwt = jwt({
-	secret: process.env.JWT_SECRET!,
-	alg: process.env.JWT_ALG as SignatureAlgorithm,
-	verification: {
-		iss: process.env.JWT_ISSUER!,
-	},
-});
+import { prisma } from "../lib/prisma.ts";
+import { zValidator } from "@hono/zod-validator";
+import { z } from "zod";
+import { zValidatorErrorsHook } from "../lib/util.ts";
 
 const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>();
 
-app.get("/", validateJwt, async (c) => {
-	const payload = c.get("jwtPayload");
-	return c.json({ posts: [] });
+app.get("/", async (c) => {
+	const posts = await prisma.post.findMany();
+	return c.json({ data: posts });
 });
+
+app.get(
+	"/:id",
+	zValidator(
+		"param",
+		z.object({
+			id: z.int(),
+		}),
+		zValidatorErrorsHook,
+	),
+	async (c) => {
+		const param = c.req.valid("param");
+		const post = await prisma.post.findUnique({
+			where: {
+				id: param.id,
+			},
+		});
+
+		if (!post) {
+			return c.json({ message: "Resource not found" }, 404);
+		}
+
+		return c.json({ data: post });
+	},
+);
 
 export default app;

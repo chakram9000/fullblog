@@ -27,9 +27,6 @@ app.post(
 	),
 	async (c) => {
 		const body = c.req.valid("form");
-		/* if (body.password !== body.confirm_password) {
-			return c.json({ message: "Passwords don't match" }, 401);
-		}*/
 
 		const isUserExists = !!(await prisma.user.findUnique({
 			where: { email: body.email },

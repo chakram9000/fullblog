@@ -1,6 +1,8 @@
 import "dotenv/config";
 import type { Context } from "hono";
 import type { JWTPayloadValidators } from "./types.ts";
+import { jwt } from "hono/jwt";
+import type { SignatureAlgorithm } from "hono/utils/jwt/jwa";
 
 export function zValidatorErrorsHook(result: any, c: Context) {
 	if (!result.success) {
@@ -13,6 +15,14 @@ export function zValidatorErrorsHook(result: any, c: Context) {
 		);
 	}
 }
+
+export const validateJwtMiddleware = jwt({
+	secret: process.env.JWT_SECRET!,
+	alg: process.env.JWT_ALG as SignatureAlgorithm,
+	verification: {
+		iss: process.env.JWT_ISSUER!,
+	},
+});
 
 export function generateJwtPayloadValidators(): JWTPayloadValidators {
 	return {
