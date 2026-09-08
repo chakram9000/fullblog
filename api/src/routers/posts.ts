@@ -15,6 +15,21 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>();
 app.route("/:postId/comments", comments);
 
 app.get("/", async (c) => {
+	const posts = await prisma.post.findMany({
+		where: {
+			is_published: true,
+		},
+	});
+
+	return c.json({ data: posts });
+});
+
+app.get("/all", validateJWT, async (c) => {
+	const jwtPayload = c.get("jwtPayload");
+	if (jwtPayload.role !== "AUTHOR") {
+		return c.json({ message: "Unauthorized" }, 403);
+	}
+
 	const posts = await prisma.post.findMany();
 	return c.json({ data: posts });
 });
