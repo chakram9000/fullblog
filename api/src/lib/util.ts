@@ -1,12 +1,16 @@
 import "dotenv/config";
 import type { Context } from "hono";
 import type { JWTPayloadValidators } from "./types.ts";
-import { jwt } from "hono/jwt";
-import type { SignatureAlgorithm } from "hono/utils/jwt/jwa";
 
 export function zValidatorErrorsHook(result: any, c: Context) {
 	if (!result.success) {
-		const errorFields = result.error.issues.map((value: any) => value.path[0]);
+		// @TODO: TMP
+		console.log(result);
+
+		const errorFields = result.error.issues.map(
+			(value: any) => `${value.path[0]} (${value.code})`,
+		);
+
 		return c.json(
 			{
 				message: `Invalid fields: ${errorFields.join(", ")}.`,
@@ -15,14 +19,6 @@ export function zValidatorErrorsHook(result: any, c: Context) {
 		);
 	}
 }
-
-export const validateJwtMiddleware = jwt({
-	secret: process.env.JWT_SECRET!,
-	alg: process.env.JWT_ALG as SignatureAlgorithm,
-	verification: {
-		iss: process.env.JWT_ISSUER!,
-	},
-});
 
 export function generateJwtPayloadValidators(): JWTPayloadValidators {
 	return {

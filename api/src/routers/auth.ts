@@ -12,6 +12,7 @@ import {
 } from "../lib/util.ts";
 import type { SignatureAlgorithm } from "hono/utils/jwt/jwa";
 
+// @TODO: route for getting a fresh token when already authorized
 const app = new Hono();
 
 app.post(
@@ -48,6 +49,7 @@ app.post(
 			id: newUser.id,
 			email: newUser.email,
 			display_name: newUser.display_name,
+			role: newUser.role,
 			...generateJwtPayloadValidators(),
 		};
 
@@ -89,6 +91,7 @@ app.post(
 			id: user.id,
 			email: user.email,
 			display_name: user.display_name,
+			role: user.role,
 			...generateJwtPayloadValidators(),
 		};
 		const token = await sign(
