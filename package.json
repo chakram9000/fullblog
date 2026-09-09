@@ -4,7 +4,8 @@
 	"private": true,
 	"description": "",
 	"scripts": {
-		"dev:api": "pnpm --filter api dev"
+		"dev:api": "pnpm --filter api dev",
+		"dev:admin": "pnpm --filter web-admin dev"
 	},
 	"repository": {
 		"type": "git",
