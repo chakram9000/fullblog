@@ -7,11 +7,11 @@ import posts from "./routers/posts.ts";
 
 const app = new Hono();
 
-/* @TODO: Enable and setup cors and csrf
-app.use(
-	cors({ origin: process.env.ORIGIN }),
-	csrf({ origin: process.env.ORIGIN }),
-); */
+// @TODO: Enable and setup cors and csrf
+// app.use(
+// 	cors({ origin: process.env.ORIGIN }),
+// 	csrf({ origin: process.env.ORIGIN }),
+// );
 
 app.route("/auth", auth);
 app.route("/api/posts", posts);
