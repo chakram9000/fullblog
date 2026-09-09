@@ -59,6 +59,8 @@ app.get(
 			return c.json({ message: "Resource not found" }, 404);
 		}
 
+		// @TODO: also check that user.role === "AUTHOR" || post is_published === true
+
 		return c.json({ data: post });
 	},
 );
