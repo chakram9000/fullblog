@@ -10,188 +10,187 @@ import { validateJWT } from "../lib/middlewares.ts";
 
 import comments from "./comments.ts";
 
-const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>();
+const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
+	.route("/:postId/comments", comments)
 
-app.route("/:postId/comments", comments);
+	.get("/", async (c) => {
+		const posts = await prisma.post.findMany({
+			where: {
+				is_published: true,
+			},
+		});
 
-app.get("/", async (c) => {
-	const posts = await prisma.post.findMany({
-		where: {
-			is_published: true,
+		return c.json({ data: posts });
+	})
+
+	.get("/all", validateJWT, async (c) => {
+		const jwtPayload = c.get("jwtPayload");
+		if (jwtPayload.role !== "AUTHOR") {
+			return c.json({ message: "Unauthorized" }, 403);
+		}
+
+		const posts = await prisma.post.findMany();
+		return c.json({ data: posts });
+	})
+
+	.get(
+		"/:postId",
+		zValidator(
+			"param",
+			z.object({
+				postId: z.coerce.number().int(),
+			}),
+			zValidatorErrorsHook,
+		),
+		async (c) => {
+			const param = c.req.valid("param");
+			const post = await prisma.post.findUnique({
+				where: {
+					id: param.postId,
+				},
+				include: {
+					author: true,
+					comments: true,
+				},
+			});
+
+			if (!post) {
+				return c.json({ message: "Resource not found" }, 404);
+			}
+
+			// @TODO: also check that user.role === "AUTHOR" || post is_published === true
+
+			return c.json({ data: post });
 		},
-	});
+	)
 
-	return c.json({ data: posts });
-});
+	.post(
+		"/",
+		validateJWT,
+		zValidator(
+			"form",
+			z.object({
+				title: z.string().trim().min(3).max(128),
+				content: z.string().trim().min(3).max(2048),
+				is_published: z.stringbool().optional(),
+			}),
+			zValidatorErrorsHook,
+		),
+		async (c) => {
+			const jwtPayload = c.get("jwtPayload");
+			if (jwtPayload.role !== "AUTHOR") {
+				return c.json({ message: "Unauthorized" }, 403);
+			}
 
-app.get("/all", validateJWT, async (c) => {
-	const jwtPayload = c.get("jwtPayload");
-	if (jwtPayload.role !== "AUTHOR") {
-		return c.json({ message: "Unauthorized" }, 403);
-	}
+			const body = c.req.valid("form");
+			const newPost = await prisma.post.create({
+				data: {
+					title: body.title,
+					content: body.content,
+					authorId: jwtPayload.id,
+					is_published: body.is_published,
+				},
+			});
 
-	const posts = await prisma.post.findMany();
-	return c.json({ data: posts });
-});
+			return c.json({ data: newPost });
+		},
+	)
 
-app.get(
-	"/:postId",
-	zValidator(
-		"param",
-		z.object({
-			postId: z.coerce.number().int(),
-		}),
-		zValidatorErrorsHook,
-	),
-	async (c) => {
-		const param = c.req.valid("param");
-		const post = await prisma.post.findUnique({
-			where: {
-				id: param.postId,
-			},
-			include: {
-				author: true,
-				comments: true,
-			},
-		});
+	.put(
+		"/:postId",
+		validateJWT,
+		zValidator(
+			"param",
+			z.object({
+				postId: z.coerce.number().int(),
+			}),
+			zValidatorErrorsHook,
+		),
+		zValidator(
+			"form",
+			z.object({
+				title: z.string().trim().min(3).max(128).optional(),
+				content: z.string().trim().min(3).max(2048).optional(),
+				is_published: z.stringbool().optional(),
+			}),
+			zValidatorErrorsHook,
+		),
+		async (c) => {
+			const jwtPayload = c.get("jwtPayload");
+			if (jwtPayload.role !== "AUTHOR") {
+				return c.json({ message: "Unauthorized" }, 403);
+			}
 
-		if (!post) {
-			return c.json({ message: "Resource not found" }, 404);
-		}
+			const param = c.req.valid("param");
+			const existingPost = await prisma.post.findUnique({
+				where: {
+					id: param.postId,
+				},
+			});
 
-		// @TODO: also check that user.role === "AUTHOR" || post is_published === true
+			if (!existingPost) {
+				return c.json({ message: "Resource not found" }, 404);
+			}
 
-		return c.json({ data: post });
-	},
-);
+			if (existingPost.authorId !== jwtPayload.id) {
+				return c.json({ message: "You don't own this" }, 403);
+			}
 
-app.post(
-	"/",
-	validateJWT,
-	zValidator(
-		"form",
-		z.object({
-			title: z.string().trim().min(3).max(128),
-			content: z.string().trim().min(3).max(2048),
-			is_published: z.stringbool().optional(),
-		}),
-		zValidatorErrorsHook,
-	),
-	async (c) => {
-		const jwtPayload = c.get("jwtPayload");
-		if (jwtPayload.role !== "AUTHOR") {
-			return c.json({ message: "Unauthorized" }, 403);
-		}
+			const body = c.req.valid("form");
+			const newPost = await prisma.post.update({
+				where: {
+					id: param.postId,
+				},
+				data: {
+					title: body.title,
+					content: body.content,
+					is_published: body.is_published,
+				},
+			});
 
-		const body = c.req.valid("form");
-		const newPost = await prisma.post.create({
-			data: {
-				title: body.title,
-				content: body.content,
-				authorId: jwtPayload.id,
-				is_published: body.is_published,
-			},
-		});
+			return c.json({ data: newPost });
+		},
+	)
 
-		return c.json({ data: newPost });
-	},
-);
+	.delete(
+		"/:postId",
+		validateJWT,
+		zValidator(
+			"param",
+			z.object({
+				postId: z.coerce.number().int(),
+			}),
+			zValidatorErrorsHook,
+		),
+		async (c) => {
+			const jwtPayload = c.get("jwtPayload");
+			if (jwtPayload.role !== "AUTHOR") {
+				return c.json({ message: "Unauthorized" }, 403);
+			}
 
-app.put(
-	"/:postId",
-	validateJWT,
-	zValidator(
-		"param",
-		z.object({
-			postId: z.coerce.number().int(),
-		}),
-		zValidatorErrorsHook,
-	),
-	zValidator(
-		"form",
-		z.object({
-			title: z.string().trim().min(3).max(128).optional(),
-			content: z.string().trim().min(3).max(2048).optional(),
-			is_published: z.stringbool().optional(),
-		}),
-		zValidatorErrorsHook,
-	),
-	async (c) => {
-		const jwtPayload = c.get("jwtPayload");
-		if (jwtPayload.role !== "AUTHOR") {
-			return c.json({ message: "Unauthorized" }, 403);
-		}
+			const param = c.req.valid("param");
+			const existingPost = await prisma.post.findUnique({
+				where: {
+					id: param.postId,
+				},
+			});
 
-		const param = c.req.valid("param");
-		const existingPost = await prisma.post.findUnique({
-			where: {
-				id: param.postId,
-			},
-		});
+			if (!existingPost) {
+				return c.json({ message: "Resource not found" }, 404);
+			}
 
-		if (!existingPost) {
-			return c.json({ message: "Resource not found" }, 404);
-		}
+			if (existingPost.authorId !== jwtPayload.id) {
+				return c.json({ message: "You don't own this" }, 403);
+			}
 
-		if (existingPost.authorId !== jwtPayload.id) {
-			return c.json({ message: "You don't own this" }, 403);
-		}
+			const post = await prisma.post.delete({
+				where: {
+					id: param.postId,
+				},
+			});
 
-		const body = c.req.valid("form");
-		const newPost = await prisma.post.update({
-			where: {
-				id: param.postId,
-			},
-			data: {
-				title: body.title,
-				content: body.content,
-				is_published: body.is_published,
-			},
-		});
-
-		return c.json({ data: newPost });
-	},
-);
-
-app.delete(
-	"/:postId",
-	validateJWT,
-	zValidator(
-		"param",
-		z.object({
-			postId: z.coerce.number().int(),
-		}),
-		zValidatorErrorsHook,
-	),
-	async (c) => {
-		const jwtPayload = c.get("jwtPayload");
-		if (jwtPayload.role !== "AUTHOR") {
-			return c.json({ message: "Unauthorized" }, 403);
-		}
-
-		const param = c.req.valid("param");
-		const existingPost = await prisma.post.findUnique({
-			where: {
-				id: param.postId,
-			},
-		});
-
-		if (!existingPost) {
-			return c.json({ message: "Resource not found" }, 404);
-		}
-
-		if (existingPost.authorId !== jwtPayload.id) {
-			return c.json({ message: "You don't own this" }, 403);
-		}
-
-		const post = await prisma.post.delete({
-			where: {
-				id: param.postId,
-			},
-		});
-
-		return c.json({ data: post });
-	},
-);
+			return c.json({ data: post });
+		},
+	);
 
 export default app;

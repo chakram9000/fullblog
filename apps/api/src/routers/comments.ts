@@ -8,142 +8,141 @@ import { z } from "zod";
 import { zValidatorErrorsHook } from "../lib/util.ts";
 import { validateJWT } from "../lib/middlewares.ts";
 
-const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>();
+const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
+	.post(
+		"/",
+		validateJWT,
+		zValidator(
+			"param",
+			z.object({
+				postId: z.coerce.number().int(),
+			}),
+			zValidatorErrorsHook,
+		),
+		zValidator(
+			"form",
+			z.object({
+				content: z.string().trim().min(1).max(256),
+			}),
+			zValidatorErrorsHook,
+		),
+		async (c) => {
+			const jwtPayload = c.get("jwtPayload");
+			const body = c.req.valid("form");
+			const param = c.req.valid("param");
 
-app.post(
-	"/",
-	validateJWT,
-	zValidator(
-		"param",
-		z.object({
-			postId: z.coerce.number().int(),
-		}),
-		zValidatorErrorsHook,
-	),
-	zValidator(
-		"form",
-		z.object({
-			content: z.string().trim().min(1).max(256),
-		}),
-		zValidatorErrorsHook,
-	),
-	async (c) => {
-		const jwtPayload = c.get("jwtPayload");
-		const body = c.req.valid("form");
-		const param = c.req.valid("param");
+			// @NOTE:	probably only need to check the post existing here, not in PUT or DELETE.
+			const doesPostExist = !!(await prisma.post.findUnique({
+				where: {
+					id: param.postId,
+				},
+			}));
 
-		// @NOTE:	probably only need to check the post existing here, not in PUT or DELETE.
-		const doesPostExist = !!(await prisma.post.findUnique({
-			where: {
-				id: param.postId,
-			},
-		}));
+			if (!doesPostExist) {
+				return c.json({ message: "Resource not found" }, 404);
+			}
 
-		if (!doesPostExist) {
-			return c.json({ message: "Resource not found" }, 404);
-		}
+			const newComment = await prisma.comment.create({
+				data: {
+					content: body.content,
+					authorId: jwtPayload.id,
+					postId: param.postId,
+				},
+			});
 
-		const newComment = await prisma.comment.create({
-			data: {
-				content: body.content,
-				authorId: jwtPayload.id,
-				postId: param.postId,
-			},
-		});
+			return c.json({ data: newComment });
+		},
+	)
 
-		return c.json({ data: newComment });
-	},
-);
+	.put(
+		"/:commentId",
+		validateJWT,
+		zValidator(
+			"param",
+			z.object({
+				postId: z.coerce.number().int(),
+				commentId: z.coerce.number().int(),
+			}),
+			zValidatorErrorsHook,
+		),
+		zValidator(
+			"form",
+			z.object({
+				content: z.string().trim().min(1).max(256),
+			}),
+			zValidatorErrorsHook,
+		),
+		async (c) => {
+			const jwtPayload = c.get("jwtPayload");
+			const param = c.req.valid("param");
 
-app.put(
-	"/:commentId",
-	validateJWT,
-	zValidator(
-		"param",
-		z.object({
-			postId: z.coerce.number().int(),
-			commentId: z.coerce.number().int(),
-		}),
-		zValidatorErrorsHook,
-	),
-	zValidator(
-		"form",
-		z.object({
-			content: z.string().trim().min(1).max(256),
-		}),
-		zValidatorErrorsHook,
-	),
-	async (c) => {
-		const jwtPayload = c.get("jwtPayload");
-		const param = c.req.valid("param");
+			const existingComment = await prisma.comment.findUnique({
+				where: {
+					id: param.commentId,
+					postId: param.postId,
+				},
+			});
 
-		const existingComment = await prisma.comment.findUnique({
-			where: {
-				id: param.commentId,
-				postId: param.postId,
-			},
-		});
+			if (!existingComment) {
+				return c.json({ message: "Resource not found" }, 404);
+			}
 
-		if (!existingComment) {
-			return c.json({ message: "Resource not found" }, 404);
-		}
+			if (existingComment.authorId !== jwtPayload.id) {
+				return c.json({ message: "You don't own this" }, 403);
+			}
 
-		if (existingComment.authorId !== jwtPayload.id) {
-			return c.json({ message: "You don't own this" }, 403);
-		}
+			const body = c.req.valid("form");
+			const newComment = await prisma.comment.update({
+				where: {
+					id: param.commentId,
+				},
+				data: {
+					content: body.content,
+				},
+			});
 
-		const body = c.req.valid("form");
-		const newComment = await prisma.comment.update({
-			where: {
-				id: param.commentId,
-			},
-			data: {
-				content: body.content,
-			},
-		});
+			return c.json({ data: newComment });
+		},
+	)
 
-		return c.json({ data: newComment });
-	},
-);
+	.delete(
+		"/:commentId",
+		validateJWT,
+		zValidator(
+			"param",
+			z.object({
+				postId: z.coerce.number().int(),
+				commentId: z.coerce.number().int(),
+			}),
+			zValidatorErrorsHook,
+		),
+		async (c) => {
+			const jwtPayload = c.get("jwtPayload");
+			const param = c.req.valid("param");
 
-app.delete(
-	"/:commentId",
-	validateJWT,
-	zValidator(
-		"param",
-		z.object({
-			postId: z.coerce.number().int(),
-			commentId: z.coerce.number().int(),
-		}),
-		zValidatorErrorsHook,
-	),
-	async (c) => {
-		const jwtPayload = c.get("jwtPayload");
-		const param = c.req.valid("param");
+			const existingComment = await prisma.comment.findUnique({
+				where: {
+					id: param.commentId,
+					postId: param.postId,
+				},
+			});
 
-		const existingComment = await prisma.comment.findUnique({
-			where: {
-				id: param.commentId,
-				postId: param.postId,
-			},
-		});
+			if (!existingComment) {
+				return c.json({ message: "Resource not found" }, 404);
+			}
 
-		if (!existingComment) {
-			return c.json({ message: "Resource not found" }, 404);
-		}
+			if (existingComment.authorId !== jwtPayload.id) {
+				return c.json({ message: "You don't own this" }, 403);
+			}
 
-		if (existingComment.authorId !== jwtPayload.id) {
-			return c.json({ message: "You don't own this" }, 403);
-		}
+			const comment = await prisma.comment.delete({
+				where: {
+					id: param.commentId,
+				},
+			});
 
-		const comment = await prisma.comment.delete({
-			where: {
-				id: param.commentId,
-			},
-		});
-
-		return c.json({ data: comment });
-	},
-);
+			return c.json({ data: comment });
+		},
+	);
 
 export default app;

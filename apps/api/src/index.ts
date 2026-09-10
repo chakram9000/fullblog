@@ -4,17 +4,18 @@ import { Hono } from "hono";
 
 import auth from "./routers/auth.ts";
 import posts from "./routers/posts.ts";
+import { cors } from "hono/cors";
+import { csrf } from "hono/csrf";
 
-const app = new Hono();
+const app = new Hono()
+	.use(
+		cors({ origin: [process.env.ORIGIN_ADMIN!, process.env.ORIGIN_PUBLIC!] }),
+		csrf({ origin: [process.env.ORIGIN_ADMIN!, process.env.ORIGIN_PUBLIC!] }),
+	)
+	.route("/auth", auth)
+	.route("/api/posts", posts);
 
-// @TODO: Enable and setup cors and csrf
-// app.use(
-// 	cors({ origin: process.env.ORIGIN }),
-// 	csrf({ origin: process.env.ORIGIN }),
-// );
-
-app.route("/auth", auth);
-app.route("/api/posts", posts);
+export type AppType = typeof app;
 
 const server = serve(
 	{
@@ -23,6 +24,7 @@ const server = serve(
 	},
 	(info) => {
 		console.log(`Server is running on http://localhost:${info.port}`);
+		console.log(`Debug: ${process.env.DEBUG}`);
 	},
 );
 
