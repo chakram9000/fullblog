@@ -4,7 +4,8 @@ import { routeTree } from "./routeTree.gen";
 import { hc } from "hono/client";
 import type { AppType } from "api/src/index";
 
-const client = hc<AppType>(import.meta.env.VITE_ORIGIN_API!);
+if (!import.meta.env.VITE_ORIGIN_API) throw Error("API origin not specified");
+const client = hc<AppType>(import.meta.env.VITE_ORIGIN_API);
 export type ClientType = typeof client;
 const router = createRouter({
 	routeTree,

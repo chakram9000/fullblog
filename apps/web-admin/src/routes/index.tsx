@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, useRouteContext } from "@tanstack/react-router";
+import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({ component: Home });
 
@@ -22,9 +22,19 @@ function Home() {
 	}
 
 	return (
-		<main>
+		<main className="w-screen max-w-2xl mx-auto px-2 py-8 flex flex-col items-stretch gap-6">
 			{posts.data?.data.map((post) => (
-				<h1>{post.title}</h1>
+				<article
+					className="bg-amber-50 p-4 rounded-md flex flex-col gap-2"
+					key={post.id}
+				>
+					<h2 className="text-2xl font-bold italic">{post.title}</h2>
+					<p className="text-lg text-slate-500">
+						{post.content.length > 30
+							? `${post.content.slice(0, 30)}...`
+							: post.content}
+					</p>
+				</article>
 			))}
 		</main>
 	);

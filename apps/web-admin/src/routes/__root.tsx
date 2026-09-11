@@ -20,7 +20,6 @@ const queryClient = new QueryClient();
 function RootComponent() {
 	return (
 		<QueryClientProvider client={queryClient}>
-			<h1 className="font-black">Admin dashboard</h1>
 			<Outlet />
 			<TanStackDevtools
 				config={{
