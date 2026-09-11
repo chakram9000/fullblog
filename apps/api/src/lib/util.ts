@@ -4,9 +4,6 @@ import type { JWTPayloadValidators } from "./types.ts";
 
 export function zValidatorErrorsHook(result: any, c: Context) {
 	if (!result.success) {
-		// @TODO: TMP
-		console.log(result);
-
 		const errorFields = result.error.issues.map(
 			(value: any) => `${value.path[0]} (${value.code})`,
 		);

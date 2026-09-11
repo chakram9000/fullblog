@@ -1,14 +1,31 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { useQuery } from "@tanstack/react-query";
+import { createFileRoute, useRouteContext } from "@tanstack/react-router";
 
-export const Route = createFileRoute('/')({ component: Home })
+export const Route = createFileRoute("/")({ component: Home });
 
 function Home() {
-  return (
-    <div className="p-8">
-      <h1 className="text-4xl font-bold">Welcome to TanStack Start</h1>
-      <p className="mt-4 text-lg">
-        Edit <code>src/routes/index.tsx</code> to get started.
-      </p>
-    </div>
-  )
+	const context = useRouteContext({ from: "__root__" });
+	const client = context.client;
+
+	const posts = useQuery({
+		queryKey: ["posts"],
+		queryFn: async () => {
+			const res = await client.api.posts.$get();
+			return await res.json();
+		},
+	});
+
+	if (posts.isLoading) return;
+	if (posts.isError) {
+		if (import.meta.env.DEV) console.error(posts.error);
+		return <p>Error!</p>;
+	}
+
+	return (
+		<main>
+			{posts.data?.data.map((post) => (
+				<h1>{post.title}</h1>
+			))}
+		</main>
+	);
 }

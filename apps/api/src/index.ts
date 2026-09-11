@@ -7,11 +7,18 @@ import posts from "./routers/posts.ts";
 import { cors } from "hono/cors";
 import { csrf } from "hono/csrf";
 
-const app = new Hono()
-	.use(
-		cors({ origin: [process.env.ORIGIN_ADMIN!, process.env.ORIGIN_PUBLIC!] }),
-		csrf({ origin: [process.env.ORIGIN_ADMIN!, process.env.ORIGIN_PUBLIC!] }),
-	)
+const app = (
+	process.env.DEBUG
+		? new Hono().use(cors({ origin: "*" }))
+		: new Hono().use(
+				cors({
+					origin: [process.env.ORIGIN_ADMIN!, process.env.ORIGIN_PUBLIC!],
+				}),
+				csrf({
+					origin: [process.env.ORIGIN_ADMIN!, process.env.ORIGIN_PUBLIC!],
+				}),
+			)
+)
 	.route("/auth", auth)
 	.route("/api/posts", posts);
 
