@@ -4,19 +4,13 @@ import {
 	redirect,
 	useNavigate,
 	useRouteContext,
-	useRouter,
 } from "@tanstack/react-router";
 import { useState } from "react";
 
 export const Route = createFileRoute("/login")({
 	beforeLoad: () => {
 		const jwt = localStorage.getItem("jwt");
-
-		if (jwt) {
-			throw redirect({
-				to: "/posts",
-			});
-		}
+		if (jwt) throw redirect({ to: "/posts" });
 	},
 	component: RouteComponent,
 });

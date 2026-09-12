@@ -23,34 +23,17 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 		return c.json({ data: posts });
 	})
 
-	.get(
-		"/:authorId",
-		validateJWT,
-		zValidator(
-			"param",
-			z.object({
-				authorId: z.coerce.number().int(),
-			}),
-			zValidatorErrorsHook,
-		),
-		async (c) => {
-			const jwtPayload = c.get("jwtPayload");
-			if (jwtPayload.role !== "AUTHOR") {
-				return c.json({ message: "Unauthorized" }, 403);
-			}
+	.get("/own", validateJWT, async (c) => {
+		const jwtPayload = c.get("jwtPayload");
+		if (jwtPayload.role !== "AUTHOR") {
+			return c.json({ message: "Unauthorized" }, 403);
+		}
 
-			const { authorId } = c.req.valid("param");
-
-			if (jwtPayload.id !== authorId) {
-				return c.json({ message: "Unauthorized" }, 403);
-			}
-
-			const posts = await prisma.post.findMany({
-				where: { authorId },
-			});
-			return c.json({ data: posts });
-		},
-	)
+		const posts = await prisma.post.findMany({
+			where: { authorId: jwtPayload.id },
+		});
+		return c.json({ data: posts });
+	})
 
 	.get(
 		"/:postId",
