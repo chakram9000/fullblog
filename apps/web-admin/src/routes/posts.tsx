@@ -3,6 +3,7 @@ import {
 	createFileRoute,
 	Link,
 	redirect,
+	useNavigate,
 	useRouteContext,
 } from "@tanstack/react-router";
 import { useState } from "react";
@@ -12,13 +13,14 @@ export const Route = createFileRoute("/posts")({
 		const jwt = localStorage.getItem("jwt");
 		if (!jwt) throw redirect({ to: "/login" });
 	},
-	component: Home,
+	component: Posts,
 });
 
-function Home() {
+function Posts() {
 	const [jwt] = useState(() => localStorage.getItem("jwt"));
 	const context = useRouteContext({ from: "__root__" });
 	const client = context.client;
+	const naviagtor = useNavigate();
 
 	const posts = useQuery({
 		queryKey: ["posts"],
@@ -28,22 +30,29 @@ function Home() {
 					Authorization: `Bearer ${jwt}`,
 				},
 			});
+
+			if (res.status === 401) {
+				localStorage.removeItem("jwt");
+				await naviagtor({ to: "/login" });
+				return null;
+			}
+
 			return await res.json();
 		},
 	});
 
 	if (posts.isLoading) return;
-	if (posts.isError || "message" in posts.data!) {
-		return <p>{"message" in posts.data! && posts.data.message}</p>;
+	if (posts.isError || !posts.data || "message" in posts.data) {
+		return <p>{posts.data && "message" in posts.data && posts.data.message}</p>;
 	}
 
 	return (
 		<main>
-			{posts.data?.data.map((post) => (
+			{posts.data.data.map((post) => (
 				<Link to="/posts/$postId" params={{ postId: post.id.toString() }}>
 					<article
 						className="bg-white shadow p-4 rounded flex flex-col gap-2"
-						key={post.id}
+						key={`post_${post.id}`}
 					>
 						<div className="flex items-center">
 							<h2 className="text-2xl font-bold italic me-auto">

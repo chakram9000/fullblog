@@ -9,6 +9,7 @@ import { zValidatorErrorsHook } from "../lib/util.ts";
 import { validateJWT } from "../lib/middlewares.ts";
 
 import comments from "./comments.ts";
+import { some } from "hono/combine";
 
 const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 	.route("/:postId/comments", comments)
@@ -32,11 +33,13 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 		const posts = await prisma.post.findMany({
 			where: { authorId: jwtPayload.id },
 		});
+
 		return c.json({ data: posts });
 	})
 
 	.get(
 		"/:postId",
+		some(validateJWT, () => true),
 		zValidator(
 			"param",
 			z.object({
@@ -45,7 +48,9 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 			zValidatorErrorsHook,
 		),
 		async (c) => {
+			const jwt = c.get("jwtPayload") as JWTPayload | undefined; // see some() middleware
 			const param = c.req.valid("param");
+
 			const post = await prisma.post.findUnique({
 				where: {
 					id: param.postId,
@@ -60,7 +65,9 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 				return c.json({ message: "Resource not found" }, 404);
 			}
 
-			// @TODO: also check that user.role === "AUTHOR" || post is_published === true
+			if (!post.is_published && (!jwt || post.authorId !== jwt.id)) {
+				return c.json({ message: "Unauthorized" }, 403);
+			}
 
 			return c.json({ data: post });
 		},

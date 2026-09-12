@@ -26,4 +26,8 @@
   form button {
     @apply p-2 bg-amber-600 text-white hover:cursor-pointer;
   }
+
+  form div {
+    @apply flex flex-col items-stretch;
+  }
 }
