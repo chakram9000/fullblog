@@ -35,6 +35,13 @@ function RouteComponent() {
 				return;
 			}
 
+			if (data.role === "VIEWER") {
+				setErrorMessage(
+					"Sorry, you're not an author and can't access this dashboard.",
+				);
+				return;
+			}
+
 			localStorage.setItem("jwt", data.token);
 			navigate({ to: "/posts" });
 		},

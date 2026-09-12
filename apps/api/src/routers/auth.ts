@@ -107,7 +107,7 @@ const app = new Hono()
 				process.env.JWT_ALG as SignatureAlgorithm,
 			);
 
-			return c.json({ token });
+			return c.json({ token, role: user.role });
 		},
 	);
 

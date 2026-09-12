@@ -5,6 +5,7 @@ import {
 	redirect,
 	useRouteContext,
 } from "@tanstack/react-router";
+import { useState } from "react";
 
 export const Route = createFileRoute("/posts")({
 	beforeLoad: () => {
@@ -15,7 +16,7 @@ export const Route = createFileRoute("/posts")({
 });
 
 function Home() {
-	const jwt = localStorage.getItem("jwt");
+	const [jwt] = useState(() => localStorage.getItem("jwt"));
 	const context = useRouteContext({ from: "__root__" });
 	const client = context.client;
 
