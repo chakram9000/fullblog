@@ -24,7 +24,7 @@ function Home() {
 	}
 
 	return (
-		<main className="gap-2!">
+		<main className="gap-2">
 			<Link to="/posts">
 				<p className="absolute top-4 left-4 underline">See all posts</p>
 			</Link>
