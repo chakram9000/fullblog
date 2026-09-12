@@ -55,7 +55,7 @@ function RouteComponent() {
 					e.preventDefault();
 					form.handleSubmit();
 				}}
-				className="flex flex-col items-stretch gap-2"
+				className="flex flex-col items-stretch gap-3"
 			>
 				<h1 className="text-center text-2xl font-bold">Login</h1>
 				<p className="text-red-500">{errorMessage}</p>
@@ -63,7 +63,7 @@ function RouteComponent() {
 					name="email"
 					children={(field) => {
 						return (
-							<>
+							<div>
 								<label htmlFor={field.name}>Email:</label>
 								<input
 									required
@@ -74,7 +74,7 @@ function RouteComponent() {
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
 								/>
-							</>
+							</div>
 						);
 					}}
 				/>
@@ -82,7 +82,7 @@ function RouteComponent() {
 					name="password"
 					children={(field) => {
 						return (
-							<>
+							<div>
 								<label htmlFor={field.name}>Password:</label>
 								<input
 									required
@@ -93,7 +93,7 @@ function RouteComponent() {
 									onBlur={field.handleBlur}
 									onChange={(e) => field.handleChange(e.target.value)}
 								/>
-							</>
+							</div>
 						);
 					}}
 				/>
