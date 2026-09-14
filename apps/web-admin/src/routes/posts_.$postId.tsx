@@ -1,6 +1,11 @@
 import { fetchProtected } from "#/lib.ts";
-import { useQuery } from "@tanstack/react-query";
-import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+	createFileRoute,
+	Link,
+	useNavigate,
+	useRouteContext,
+} from "@tanstack/react-router";
 
 export const Route = createFileRoute("/posts_/$postId")({ component: Post });
 
@@ -8,8 +13,10 @@ function Post() {
 	const { postId } = Route.useParams();
 	const context = useRouteContext({ from: "__root__" });
 	const client = context.client;
+	const queryClient = useQueryClient();
+	const navigate = useNavigate();
 
-	const post = useQuery({
+	const { data, isLoading, isError } = useQuery({
 		queryKey: ["posts", postId],
 		queryFn: async () => {
 			const res = await fetchProtected(() =>
@@ -21,9 +28,42 @@ function Post() {
 		},
 	});
 
-	if (post.isLoading) return;
-	if (post.isError || (post.data && !("data" in post.data))) {
-		return <p>{post.data && "message" in post.data && post.data.message}</p>;
+	const onTogglePublish = async () => {
+		if (!data || !("data" in data)) return;
+
+		const message = data.data.is_published
+			? "Are you sure you want to unpublish this? comments and likes will NOT be deleted, but no one except you will be to access this post."
+			: "Are you sure you want to to publish this? it will be available publicily, along with likes and comments.";
+		if (!confirm(message)) return;
+
+		await fetchProtected(() =>
+			client.api.posts[":postId"].$put({
+				param: { postId },
+				form: { is_published: `${!data.data.is_published}` },
+			}),
+		);
+		await queryClient.invalidateQueries({ queryKey: ["posts"] });
+		navigate({ to: "/posts" });
+	};
+
+	const onClickDelete = async () => {
+		if (!data || !("data" in data)) return;
+		if (
+			!confirm(
+				"Are you sure you want to delete this? Comments and likes WILL ALSO be deleted. THIS CAN'T BE UNDONE",
+			)
+		)
+			return;
+
+		await fetchProtected(() =>
+			client.api.posts[":postId"].$delete({ param: { postId } }),
+		);
+		await queryClient.invalidateQueries({ queryKey: ["posts"] });
+	};
+
+	if (isLoading) return;
+	if (isError || (data && !("data" in data))) {
+		return <p>{data && "message" in data && data.message}</p>;
 	}
 
 	return (
@@ -31,15 +71,21 @@ function Post() {
 			<Link to="/posts" className="absolute top-4 left-4 link">
 				See all posts
 			</Link>
-			<div className="flex items-center">
+			<div className="flex items-center gap-2 text-sm">
 				<h2 className="text-2xl font-bold italic me-auto">
-					{post.data?.data.title}
+					{data?.data.title}
 				</h2>
 				<Link to="/posts/$postId/edit" params={{ postId }} className="link">
 					Edit
 				</Link>
+				<button className="link" onClick={onTogglePublish}>
+					{data?.data.is_published ? "Unpublish" : "Publish"}
+				</button>
+				<button className="link text-red-600" onClick={onClickDelete}>
+					DELETE
+				</button>
 			</div>
-			<p className="text-lg text-slate-500">{post.data?.data.content}</p>
+			<p className="text-lg text-slate-500">{data?.data.content}</p>
 		</main>
 	);
 }

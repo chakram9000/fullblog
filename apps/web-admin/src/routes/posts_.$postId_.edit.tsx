@@ -1,6 +1,6 @@
 import { fetchProtected } from "#/lib.ts";
 import { useForm } from "@tanstack/react-form";
-import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 import type React from "react";
 
@@ -26,11 +26,6 @@ function EditPost() {
 		},
 	});
 
-	const editPostMutation = useMutation({
-		mutationFn: (value: { title?: string; content?: string }) =>
-			client.api.posts[":postId"].$put({ param: { postId }, form: value }),
-	});
-
 	const form = useForm({
 		defaultValues:
 			data && "data" in data
@@ -43,10 +38,9 @@ function EditPost() {
 						content: "",
 					},
 		onSubmit: async ({ value }) => {
-			await editPostMutation.mutateAsync({
-				...value,
-			});
-
+			await fetchProtected(() =>
+				client.api.posts[":postId"].$put({ param: { postId }, form: value }),
+			);
 			await queryClient.invalidateQueries({
 				queryKey: ["posts"],
 			});

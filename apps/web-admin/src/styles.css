@@ -35,8 +35,8 @@
   form div {
     @apply flex flex-col items-stretch;
   }
-}
 
-.link {
-  @apply underline font-semibold text-amber-600;
+  .link {
+    @apply underline font-semibold text-amber-600 hover:cursor-pointer hover:opacity-80;
+  }
 }
