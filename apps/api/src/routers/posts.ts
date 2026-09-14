@@ -65,8 +65,14 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 				return c.json({ message: "Resource not found" }, 404);
 			}
 
-			if (!post.is_published && (!jwt || post.authorId !== jwt.id)) {
-				return c.json({ message: "Unauthorized" }, 403);
+			if (!post.is_published) {
+				// @NOTE: seperate these checks for different status codes, as 401 will invalidate the jwt on the client side.
+				if (!jwt) {
+					return c.json({ message: "Unauthorized" }, 401);
+				}
+				if (post.authorId !== jwt.id) {
+					return c.json({ message: "Unauthorized" }, 403);
+				}
 			}
 
 			return c.json({ data: post });

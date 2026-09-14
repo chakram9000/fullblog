@@ -1,12 +1,10 @@
-import { useQuery } from "@tanstack/react-query";
+import { useProtectedQuery } from "#/lib.ts";
 import {
 	createFileRoute,
 	Link,
 	redirect,
-	useNavigate,
 	useRouteContext,
 } from "@tanstack/react-router";
-import { useState } from "react";
 
 export const Route = createFileRoute("/posts")({
 	beforeLoad: () => {
@@ -17,43 +15,31 @@ export const Route = createFileRoute("/posts")({
 });
 
 function Posts() {
-	const [jwt] = useState(() => localStorage.getItem("jwt"));
 	const context = useRouteContext({ from: "__root__" });
 	const client = context.client;
-	const naviagtor = useNavigate();
 
-	const posts = useQuery({
+	const posts = useProtectedQuery({
 		queryKey: ["posts"],
-		queryFn: async () => {
-			const res = await client.api.posts.own.$get(undefined, {
-				headers: {
-					Authorization: `Bearer ${jwt}`,
-				},
-			});
-
-			if (res.status === 401) {
-				localStorage.removeItem("jwt");
-				await naviagtor({ to: "/login" });
-				return null;
-			}
-
-			return await res.json();
-		},
+		queryFn: () => client.api.posts.own.$get(),
 	});
 
 	if (posts.isLoading) return;
-	if (posts.isError || !posts.data || "message" in posts.data) {
+	if (posts.isError || (posts.data && !("data" in posts.data))) {
 		return <p>{posts.data && "message" in posts.data && posts.data.message}</p>;
 	}
 
 	return (
 		<main>
-			{posts.data.data.map((post) => (
-				<Link to="/posts/$postId" params={{ postId: post.id.toString() }}>
-					<article
-						className="bg-white shadow p-4 rounded flex flex-col gap-2"
-						key={`post_${post.id}`}
-					>
+			<h1 className="text-2xl font-bold text-center">
+				Welcome Mr. Author, here are your posts and drafts.
+			</h1>
+			{posts.data?.data.map((post) => (
+				<Link
+					to="/posts/$postId"
+					params={{ postId: post.id.toString() }}
+					key={`post_${post.id}`}
+				>
+					<article className="bg-white shadow p-4 rounded flex flex-col gap-2">
 						<div className="flex items-center">
 							<h2 className="text-2xl font-bold italic me-auto">
 								{post.title}

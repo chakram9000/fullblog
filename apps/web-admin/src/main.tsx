@@ -5,7 +5,14 @@ import { hc } from "hono/client";
 import type { AppType } from "api/src/index";
 
 if (!import.meta.env.VITE_ORIGIN_API) throw Error("API origin not specified");
-const client = hc<AppType>(import.meta.env.VITE_ORIGIN_API);
+const client = hc<AppType>(import.meta.env.VITE_ORIGIN_API, {
+	headers: () => {
+		const jwt = localStorage.getItem("jwt");
+		return jwt
+			? { Authorization: `Bearer ${jwt}` }
+			: ({} as Record<string, string>);
+	},
+});
 export type ClientType = typeof client;
 const router = createRouter({
 	routeTree,

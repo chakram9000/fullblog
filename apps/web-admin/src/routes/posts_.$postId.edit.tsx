@@ -1,9 +1,11 @@
 import { useProtectedQuery } from "#/lib.ts";
 import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/posts_/$postId")({ component: Post });
+export const Route = createFileRoute("/posts_/$postId/edit")({
+	component: EditPost,
+});
 
-function Post() {
+function EditPost() {
 	const { postId } = Route.useParams();
 	const context = useRouteContext({ from: "__root__" });
 	const client = context.client;
