@@ -19,8 +19,13 @@
     @apply bg-amber-50 w-screen max-w-3xl mx-auto p-6 my-8 flex flex-col items-stretch gap-6;
   }
 
-  input {
+  input,
+  textarea {
     @apply border-2 border-black p-1;
+  }
+
+  form {
+    @apply flex flex-col items-stretch gap-3;
   }
 
   form button {
@@ -30,4 +35,8 @@
   form div {
     @apply flex flex-col items-stretch;
   }
+}
+
+.link {
+  @apply underline font-semibold text-amber-600;
 }

@@ -55,7 +55,6 @@ function RouteComponent() {
 					e.preventDefault();
 					form.handleSubmit();
 				}}
-				className="flex flex-col items-stretch gap-3"
 			>
 				<h1 className="text-center text-2xl font-bold">Login</h1>
 				<p className="text-red-500">{errorMessage}</p>
