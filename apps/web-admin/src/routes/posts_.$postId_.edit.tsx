@@ -10,15 +10,14 @@ export const Route = createFileRoute("/posts_/$postId_/edit")({
 
 function EditPost() {
 	const { postId } = Route.useParams();
-	const context = useRouteContext({ from: "__root__" });
-	const client = context.client;
+	const { client: apiClient } = useRouteContext({ from: "__root__" });
 	const queryClient = useQueryClient();
 
 	const { data, isError, isLoading } = useQuery({
 		queryKey: ["posts", postId],
 		queryFn: async () => {
 			const res = await fetchProtected(() =>
-				client.api.posts[":postId"].$get({ param: { postId } }),
+				apiClient.api.posts[":postId"].$get({ param: { postId } }),
 			);
 
 			if (!res) return null;
@@ -37,21 +36,27 @@ function EditPost() {
 						title: "",
 						content: "",
 					},
-		onSubmit: async ({ value }) => {
+		onSubmit: async ({ formApi, value }) => {
+			// @TODO: handle form errors.
 			await fetchProtected(() =>
-				client.api.posts[":postId"].$put({ param: { postId }, form: value }),
+				apiClient.api.posts[":postId"].$put({ param: { postId }, form: value }),
 			);
 			await queryClient.invalidateQueries({
 				queryKey: ["posts"],
 			});
+
+			// @NOTE: this helps with trailing whitespaces triggering abort popup, because the api trims the input, while the form could still have it, causing different states.
+			formApi.reset();
 		},
 	});
 
-	const onLeaveCheckSaved = (
+	const onAbortConfirmation = (
 		e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
 	) => {
-		if (!data || !("data" in data)) return; // no need to check if the post's data itself is botched for some reason.
+		// no need to check if the post's data itself is botched for some reason.
+		if (!data || !("data" in data)) return;
 
+		// check if state differs from api's
 		const formValues = form.state.values;
 		if (
 			formValues.title !== data.data.title ||
@@ -78,7 +83,7 @@ function EditPost() {
 			<Link
 				to="/posts/$postId"
 				params={{ postId }}
-				onClick={onLeaveCheckSaved}
+				onClick={onAbortConfirmation}
 				className="absolute top-4 left-4 link"
 			>
 				See post preview

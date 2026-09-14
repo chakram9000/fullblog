@@ -16,8 +16,7 @@ export const Route = createFileRoute("/login")({
 });
 
 function RouteComponent() {
-	const context = useRouteContext({ from: "__root__" });
-	const client = context.client;
+	const { client: apiClient } = useRouteContext({ from: "__root__" });
 	const navigate = useNavigate();
 
 	const [errorMessage, setErrorMessage] = useState("");
@@ -27,7 +26,7 @@ function RouteComponent() {
 			password: "",
 		},
 		onSubmit: async ({ value }) => {
-			const res = await client.auth.login.$post({ form: value });
+			const res = await apiClient.auth.login.$post({ form: value });
 			const data = await res.json();
 
 			if (!res.ok || "message" in data) {

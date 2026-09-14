@@ -16,13 +16,12 @@ export const Route = createFileRoute("/posts")({
 });
 
 function Posts() {
-	const context = useRouteContext({ from: "__root__" });
-	const client = context.client;
+	const { client: apiClient } = useRouteContext({ from: "__root__" });
 
 	const posts = useQuery({
 		queryKey: ["posts"],
 		queryFn: async () => {
-			const res = await fetchProtected(() => client.api.posts.own.$get());
+			const res = await fetchProtected(() => apiClient.api.posts.own.$get());
 			if (!res) return null;
 			return await res.json();
 		},
@@ -35,9 +34,14 @@ function Posts() {
 
 	return (
 		<main>
-			<h1 className="text-2xl font-bold text-center">
-				Welcome Mr. Author, here are your posts and drafts.
-			</h1>
+			<div className="flex items-center gap-2 text-sm">
+				<h1 className="text-2xl font-bold me-auto">
+					Welcome Mr. Author, here are your posts and drafts.
+				</h1>
+				<Link to="/posts/add" className="link">
+					New post
+				</Link>
+			</div>
 			{posts.data?.data.map((post) => (
 				<Link
 					to="/posts/$postId"
@@ -56,8 +60,8 @@ function Posts() {
 							)}
 						</div>
 						<p className="text-lg text-slate-500">
-							{post.content.length > 30
-								? `${post.content.slice(0, 30)}...`
+							{post.content.length > 50
+								? `${post.content.slice(0, 50)}...`
 								: post.content}
 						</p>
 					</article>

@@ -11,8 +11,7 @@ export const Route = createFileRoute("/posts_/$postId")({ component: Post });
 
 function Post() {
 	const { postId } = Route.useParams();
-	const context = useRouteContext({ from: "__root__" });
-	const client = context.client;
+	const { client: apiClient } = useRouteContext({ from: "__root__" });
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
 
@@ -20,7 +19,7 @@ function Post() {
 		queryKey: ["posts", postId],
 		queryFn: async () => {
 			const res = await fetchProtected(() =>
-				client.api.posts[":postId"].$get({ param: { postId } }),
+				apiClient.api.posts[":postId"].$get({ param: { postId } }),
 			);
 
 			if (!res) return null;
@@ -37,7 +36,7 @@ function Post() {
 		if (!confirm(message)) return;
 
 		await fetchProtected(() =>
-			client.api.posts[":postId"].$put({
+			apiClient.api.posts[":postId"].$put({
 				param: { postId },
 				form: { is_published: `${!data.data.is_published}` },
 			}),
@@ -56,9 +55,10 @@ function Post() {
 			return;
 
 		await fetchProtected(() =>
-			client.api.posts[":postId"].$delete({ param: { postId } }),
+			apiClient.api.posts[":postId"].$delete({ param: { postId } }),
 		);
 		await queryClient.invalidateQueries({ queryKey: ["posts"] });
+		navigate({ to: "/posts" });
 	};
 
 	if (isLoading) return;
