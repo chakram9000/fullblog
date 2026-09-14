@@ -1,4 +1,5 @@
-import { useProtectedQuery } from "#/lib.ts";
+import { fetchProtectedHono } from "#/lib.ts";
+import { useQuery } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/posts_/$postId")({ component: Post });
@@ -8,9 +9,16 @@ function Post() {
 	const context = useRouteContext({ from: "__root__" });
 	const client = context.client;
 
-	const post = useProtectedQuery({
+	const post = useQuery({
 		queryKey: ["posts", postId],
-		queryFn: () => client.api.posts[":postId"].$get({ param: { postId } }),
+		queryFn: async () => {
+			const res = await fetchProtectedHono(() =>
+				client.api.posts[":postId"].$get({ param: { postId } }),
+			);
+
+			if (!res) return null;
+			return await res.json();
+		},
 	});
 
 	if (post.isLoading) return;

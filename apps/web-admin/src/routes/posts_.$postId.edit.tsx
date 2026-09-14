@@ -1,4 +1,6 @@
-import { useProtectedQuery } from "#/lib.ts";
+import { fetchProtectedHono } from "#/lib.ts";
+import { useForm } from "@tanstack/react-form";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/posts_/$postId/edit")({
@@ -9,10 +11,18 @@ function EditPost() {
 	const { postId } = Route.useParams();
 	const context = useRouteContext({ from: "__root__" });
 	const client = context.client;
+	const queryClient = useQueryClient();
 
-	const post = useProtectedQuery({
+	const post = useQuery({
 		queryKey: ["posts", postId],
-		queryFn: () => client.api.posts[":postId"].$get({ param: { postId } }),
+		queryFn: async () => {
+			const res = await fetchProtectedHono(() =>
+				client.api.posts[":postId"].$get({ param: { postId } }),
+			);
+
+			if (!res) return null;
+			return res.json();
+		},
 	});
 
 	if (post.isLoading) return;
