@@ -16,6 +16,7 @@ export function useProtectedQuery<TRes extends ClientResponse<any, any, any>>({
 }: ProtectedQueryOptions<TRes>) {
 	type TData = TRes extends ClientResponse<infer D, any, any> ? D : never;
 	const navigate = useNavigate();
+
 	const query = useQuery<TData>({
 		queryKey,
 		queryFn: async () => {
@@ -27,6 +28,7 @@ export function useProtectedQuery<TRes extends ClientResponse<any, any, any>>({
 
 			return await res.json();
 		},
+		retry: 1,
 	});
 
 	useEffect(() => {
