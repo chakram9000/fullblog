@@ -7,7 +7,6 @@ import posts from "./routers/posts.ts";
 import { cors } from "hono/cors";
 import { csrf } from "hono/csrf";
 
-// @TODO: change key of "message" to "error" in all error messages.
 const app = (
 	process.env.DEBUG
 		? new Hono().use(cors({ origin: "*" }))
