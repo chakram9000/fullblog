@@ -7,6 +7,7 @@ import {
 	useNavigate,
 	useRouteContext,
 } from "@tanstack/react-router";
+import { useState } from "react";
 
 export const Route = createFileRoute("/posts_/add")({
 	component: NewPost,
@@ -16,6 +17,7 @@ function NewPost() {
 	const { client: apiClient } = useRouteContext({ from: "__root__" });
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
+	const [errorMessage, setErrorMessage] = useState("");
 
 	const form = useForm({
 		defaultValues: {
@@ -24,12 +26,19 @@ function NewPost() {
 			is_published: false,
 		},
 		onSubmit: async ({ value }) => {
-			// @TODO: handle form errors.
-			await fetchProtected(() =>
+			const res = await fetchProtected(() =>
 				apiClient.api.posts.$post({
 					form: { ...value, is_published: `${value.is_published}` },
 				}),
 			);
+
+			if (!res) return;
+
+			const data = await res.json();
+			if (!res.ok) {
+				setErrorMessage("message" in data ? data.message : "An error occured.");
+				return;
+			}
 
 			await queryClient.invalidateQueries({ queryKey: ["posts"] });
 			navigate({ to: "/posts" });
@@ -39,11 +48,7 @@ function NewPost() {
 	const onAbortConfirmation = (
 		e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
 	) => {
-		if (
-			!confirm(
-				"You haven't saved! Are you sure you want to quit? All changes would be lost.",
-			)
-		) {
+		if (!confirm("Are you sure you want to quit? All changes would be lost.")) {
 			e.preventDefault();
 			e.stopPropagation();
 		}
@@ -65,6 +70,7 @@ function NewPost() {
 					form.handleSubmit();
 				}}
 			>
+				<p className="text-red-500">{errorMessage}</p>
 				<form.Field
 					name="title"
 					children={(field) => {

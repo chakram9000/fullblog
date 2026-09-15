@@ -3,6 +3,7 @@ import { useForm } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 import type React from "react";
+import { useState } from "react";
 
 export const Route = createFileRoute("/posts_/$postId_/edit")({
 	component: EditPost,
@@ -12,6 +13,7 @@ function EditPost() {
 	const { postId } = Route.useParams();
 	const { client: apiClient } = useRouteContext({ from: "__root__" });
 	const queryClient = useQueryClient();
+	const [errorMessage, setErrorMessage] = useState("");
 
 	const { data, isError, isLoading } = useQuery({
 		queryKey: ["posts", postId],
@@ -37,10 +39,18 @@ function EditPost() {
 						content: "",
 					},
 		onSubmit: async ({ formApi, value }) => {
-			// @TODO: handle form errors.
-			await fetchProtected(() =>
+			const res = await fetchProtected(() =>
 				apiClient.api.posts[":postId"].$put({ param: { postId }, form: value }),
 			);
+
+			if (!res) return;
+
+			const data = await res.json();
+			if (!res.ok) {
+				setErrorMessage("message" in data ? data.message : "An error occured.");
+				return;
+			}
+
 			await queryClient.invalidateQueries({
 				queryKey: ["posts"],
 			});
@@ -95,6 +105,7 @@ function EditPost() {
 					form.handleSubmit();
 				}}
 			>
+				<p className="text-red-500">{errorMessage}</p>
 				<form.Field
 					name="title"
 					children={(field) => {
