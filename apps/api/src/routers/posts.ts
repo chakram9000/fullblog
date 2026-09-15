@@ -16,9 +16,8 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 
 	.get("/", async (c) => {
 		const posts = await prisma.post.findMany({
-			where: {
-				is_published: true,
-			},
+			where: { is_published: true },
+			orderBy: { created_at: "desc" },
 		});
 
 		return c.json({ data: posts });
@@ -30,8 +29,10 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 			return c.json({ message: "Unauthorized" }, 403);
 		}
 
+		// @TODO: add updated_at, and order by it.
 		const posts = await prisma.post.findMany({
 			where: { authorId: jwtPayload.id },
+			orderBy: { created_at: "desc" },
 		});
 
 		return c.json({ data: posts });
