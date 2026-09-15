@@ -1,4 +1,5 @@
 import { fetchProtected } from "#/lib.ts";
+import { Comments } from "@blog/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	createFileRoute,
@@ -89,25 +90,7 @@ function Post() {
 				{data?.data.content}
 			</p>
 			<div className="h-px bg-amber-700"></div>
-			<h2 className="text-xl font-bold">Comments</h2>
-			<div className="flex flex-col items-stretch gap-2">
-				{data?.data.comments.length
-					? data?.data.comments.map((c) => (
-							<div className="flex flex-col card">
-								<div className="flex items-center gap-2">
-									<h3 className="text-lg font-bold">{c.author.display_name}</h3>
-									<p className="text-sm">
-										{"<"}
-										{c.author.email}
-										{">"}
-									</p>
-									<p className="ms-auto opacity-60">{c.created_at}</p>
-								</div>
-								<p>{c.content}</p>
-							</div>
-						))
-					: "No comments found."}
-			</div>
+			{data?.data.comments && <Comments comments={data.data.comments as any} />}
 		</main>
 	);
 }
