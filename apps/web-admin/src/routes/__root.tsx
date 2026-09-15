@@ -5,10 +5,10 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 
 import "../styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import type { ClientType } from "../main.tsx";
+import type { HonoClient } from "@blog/shared";
 
 interface RouterContext {
-	client: ClientType;
+	client: HonoClient;
 }
 
 export const Route = createRootRouteWithContext<RouterContext>()({

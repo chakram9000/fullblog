@@ -145,11 +145,15 @@ function EditPost() {
 					}}
 				/>
 				<form.Subscribe
-					selector={(state) => [state.canSubmit, state.isSubmitting]}
-					children={([canSubmit, isSubmitting]) => (
+					selector={(state) => [
+						state.canSubmit,
+						state.isSubmitting,
+						state.isSubmitSuccessful,
+					]}
+					children={([canSubmit, isSubmitting, isSubmitSuccessful]) => (
 						<>
 							<button type="submit" disabled={!canSubmit}>
-								{isSubmitting ? "..." : "Save"}
+								{isSubmitting ? "..." : isSubmitSuccessful ? "Saved!" : "Save"}
 							</button>
 						</>
 					)}
