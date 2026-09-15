@@ -67,14 +67,14 @@ function Post() {
 	}
 
 	return (
-		<main className="gap-2">
+		<main className="gap-4">
 			<Link to="/posts" className="absolute top-4 left-4 link">
 				See all posts
 			</Link>
 			<div className="flex items-center gap-2 text-sm">
-				<h2 className="text-2xl font-bold italic me-auto">
+				<h1 className="text-2xl font-bold italic me-auto">
 					{data?.data.title}
-				</h2>
+				</h1>
 				<Link to="/posts/$postId/edit" params={{ postId }} className="link">
 					Edit
 				</Link>
@@ -85,7 +85,29 @@ function Post() {
 					DELETE
 				</button>
 			</div>
-			<p className="text-lg text-slate-500">{data?.data.content}</p>
+			<p className="text-lg text-black text-justify wrap-break-word">
+				{data?.data.content}
+			</p>
+			<div className="h-px bg-amber-700"></div>
+			<h2 className="text-xl font-bold">Comments</h2>
+			<div className="flex flex-col items-stretch gap-2">
+				{data?.data.comments.length
+					? data?.data.comments.map((c) => (
+							<div className="flex flex-col card">
+								<div className="flex items-center gap-2">
+									<h3 className="text-lg font-bold">{c.author.display_name}</h3>
+									<p className="text-sm">
+										{"<"}
+										{c.author.email}
+										{">"}
+									</p>
+									<p className="ms-auto opacity-60">{c.created_at}</p>
+								</div>
+								<p>{c.content}</p>
+							</div>
+						))
+					: "No comments found."}
+			</div>
 		</main>
 	);
 }

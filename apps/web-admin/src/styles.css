@@ -39,4 +39,8 @@
   .link {
     @apply underline font-semibold text-amber-600 hover:cursor-pointer hover:opacity-80;
   }
+
+  .card {
+    @apply rounded bg-white shadow-sm p-4;
+  }
 }

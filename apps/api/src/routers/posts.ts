@@ -57,7 +57,11 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 				},
 				include: {
 					author: true,
-					comments: true,
+					comments: {
+						include: {
+							author: true,
+						},
+					},
 				},
 			});
 
