@@ -12,7 +12,7 @@ export function zValidatorErrorsHook(result: any, c: Context) {
 			{
 				message: `Invalid fields: ${errorFields.join(", ")}.`,
 			},
-			401,
+			400,
 		);
 	}
 }
