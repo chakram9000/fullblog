@@ -1,4 +1,4 @@
-import { fetchProtected } from "#/lib.ts";
+import { fetchProtected } from "@blog/shared";
 import { useForm } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";

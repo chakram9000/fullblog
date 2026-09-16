@@ -1,4 +1,4 @@
-import { fetchProtected } from "#/lib.ts";
+import { fetchProtected } from "@blog/shared";
 import { useQuery } from "@tanstack/react-query";
 import {
 	createFileRoute,

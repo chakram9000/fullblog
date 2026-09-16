@@ -1,4 +1,4 @@
-import { hc } from "hono/client";
+import { hc, type ClientResponse } from "hono/client";
 import type { AppType } from "api/src/index";
 
 export const createHonoClient = (api_url: string) =>
@@ -11,3 +11,17 @@ export const createHonoClient = (api_url: string) =>
 		},
 	});
 export type HonoClient = ReturnType<typeof createHonoClient>;
+
+export async function fetchProtected<
+	TRes extends ClientResponse<any, any, any>,
+>(cb: () => Promise<TRes>) {
+	const res = await cb();
+
+	if (res.status === 401) {
+		localStorage.removeItem("jwt");
+		window.location.href = "/login";
+		return null;
+	}
+
+	return res;
+}
