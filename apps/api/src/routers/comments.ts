@@ -9,6 +9,27 @@ import { zValidatorErrorsHook } from "../lib/util.ts";
 import { validateJWT } from "../lib/middlewares.ts";
 
 const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
+	.get(
+		"/",
+		zValidator(
+			"param",
+			z.object({
+				postId: z.coerce.number().int(),
+			}),
+			zValidatorErrorsHook,
+		),
+		async (c) => {
+			const { postId } = c.req.valid("param");
+			const comments = await prisma.comment.findMany({
+				where: { postId },
+				orderBy: { created_at: "desc" },
+				include: { author: true },
+			});
+
+			return c.json({ data: comments });
+		},
+	)
+
 	.post(
 		"/",
 		validateJWT,

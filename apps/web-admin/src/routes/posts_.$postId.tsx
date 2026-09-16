@@ -90,7 +90,7 @@ function Post() {
 				{data?.data.content}
 			</p>
 			<div className="h-px bg-amber-700"></div>
-			{data?.data.comments && <Comments comments={data.data.comments as any} />}
+			<Comments apiClient={apiClient} postId={postId} />
 		</main>
 	);
 }

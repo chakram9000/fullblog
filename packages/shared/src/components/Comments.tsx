@@ -1,16 +1,38 @@
-import type { Comment } from "api/src/generated/prisma/client.ts";
+import { useQuery } from "@tanstack/react-query";
+import type { HonoClient } from "../api.ts";
 
 type CommentsProps = {
-	comments: (Comment & { created_at: string } & {
-		author: { id: number; email: string; display_name: string };
-	})[];
+	apiClient: HonoClient;
+	postId: string;
 };
-export function Comments({ comments }: CommentsProps) {
+
+export function Comments({ apiClient, postId }: CommentsProps) {
+	const {
+		data: comments,
+		isLoading,
+		isError,
+	} = useQuery({
+		queryKey: ["comments", postId],
+		queryFn: async () => {
+			const res = await apiClient.api.posts[":postId"].comments.$get({
+				param: { postId },
+			});
+
+			if (!res.ok) return null;
+			return await res.json();
+		},
+	});
+
+	if (isLoading) return;
+	if (isError || !comments) {
+		return <p>An error occured.</p>;
+	}
+
 	return (
 		<div className="flex flex-col items-stretch gap-2">
 			<h2 className="text-xl font-bold">Comments</h2>
-			{comments.length > 0
-				? comments.map((c) => (
+			{comments.data.length > 0
+				? comments.data.map((c) => (
 						<div className="flex flex-col card" key={`comment_${c.id}`}>
 							<div className="flex items-center gap-2">
 								<h3 className="text-lg font-bold">{c.author.display_name}</h3>
