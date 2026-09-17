@@ -33,15 +33,18 @@ export function Comments({ apiClient, postId }: CommentsProps) {
 			<h2 className="text-xl font-bold">Comments</h2>
 			{comments.data.length > 0
 				? comments.data.map((c) => (
-						<div className="flex flex-col card" key={`comment_${c.id}`}>
+						<div
+							className="flex flex-col items-stretch card"
+							key={`comment_${c.id}`}
+						>
 							<div className="flex items-center gap-2">
 								<h3 className="text-lg font-bold">{c.author.display_name}</h3>
-								<p className="text-sm">
+								<p className="text-sm me-auto text-emerald-800">
 									{"<"}
 									{c.author.email}
 									{">"}
 								</p>
-								<p className="ms-auto opacity-60">{c.created_at}</p>
+								<p className="opacity-60">{c.created_at}</p>
 							</div>
 							<p>{c.content}</p>
 						</div>

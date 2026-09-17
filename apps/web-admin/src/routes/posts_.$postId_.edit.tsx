@@ -94,7 +94,7 @@ function EditPost() {
 				to="/posts/$postId"
 				params={{ postId }}
 				onClick={onAbortConfirmation}
-				className="absolute top-4 left-4 link"
+				className="absolute top-4 left-4 link text-emerald-900"
 			>
 				See post preview
 			</Link>

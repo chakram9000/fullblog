@@ -1,0 +1,44 @@
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html,
+  body,
+  #app {
+    min-height: 100%;
+  }
+
+  body {
+    @apply m-0 bg-emerald-400;
+  }
+
+  main {
+    @apply bg-emerald-50 w-screen max-w-3xl mx-auto p-6 my-12 flex flex-col items-stretch gap-6;
+  }
+
+  input,
+  textarea {
+    @apply border-2 border-black p-1;
+  }
+
+  form {
+    @apply flex flex-col items-stretch gap-3;
+  }
+
+  form button {
+    @apply p-2 bg-emerald-600 text-white hover:cursor-pointer;
+  }
+
+  form div {
+    @apply flex flex-col items-stretch;
+  }
+
+  .link {
+    @apply underline font-semibold text-emerald-600 hover:cursor-pointer hover:opacity-80;
+  }
+
+  .card {
+    @apply rounded bg-white shadow-sm p-4;
+  }
+}

@@ -69,7 +69,7 @@ function Post() {
 
 	return (
 		<main className="gap-4">
-			<Link to="/posts" className="absolute top-4 left-4 link">
+			<Link to="/posts" className="absolute top-4 left-4 link text-emerald-900">
 				See all posts
 			</Link>
 			<div className="flex items-center gap-2 text-sm">
@@ -82,14 +82,14 @@ function Post() {
 				<button className="link" onClick={onTogglePublish}>
 					{data?.data.is_published ? "Unpublish" : "Publish"}
 				</button>
-				<button className="link text-red-600" onClick={onClickDelete}>
-					DELETE
+				<button className="link text-red-800" onClick={onClickDelete}>
+					Delete
 				</button>
 			</div>
 			<p className="text-lg text-black text-justify wrap-break-word">
 				{data?.data.content}
 			</p>
-			<div className="h-px bg-amber-700"></div>
+			<div className="h-px bg-emerald-600"></div>
 			<Comments apiClient={apiClient} postId={postId} />
 		</main>
 	);
