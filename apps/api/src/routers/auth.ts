@@ -1,6 +1,6 @@
 import "dotenv/config";
 import { Hono } from "hono";
-import { sign } from "hono/jwt";
+import { sign, type JwtVariables } from "hono/jwt";
 import type { JWTPayload } from "../lib/types.ts";
 import { zValidator } from "@hono/zod-validator";
 import { z } from "zod";
@@ -11,9 +11,9 @@ import {
 	zValidatorErrorsHook,
 } from "../lib/util.ts";
 import type { SignatureAlgorithm } from "hono/utils/jwt/jwa";
+import { validateJWT } from "../lib/middlewares.ts";
 
-// @TODO: route for getting a fresh token when already authorized, for use in header and stuff (currently no way to get the jwt user's info)
-const app = new Hono()
+const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 	.post(
 		"/signup",
 		zValidator(
@@ -62,7 +62,13 @@ const app = new Hono()
 				process.env.JWT_ALG as SignatureAlgorithm,
 			);
 
-			return c.json({ token });
+			const data = {
+				id: newUser.id,
+				email: newUser.email,
+				display_name: newUser.display_name,
+			};
+
+			return c.json({ token, data });
 		},
 	)
 
@@ -101,14 +107,33 @@ const app = new Hono()
 				role: user.role,
 				...generateJwtPayloadValidators(),
 			};
+
 			const token = await sign(
 				payload,
 				process.env.JWT_SECRET!,
 				process.env.JWT_ALG as SignatureAlgorithm,
 			);
 
-			return c.json({ token, role: user.role });
+			const data = {
+				id: user.id,
+				email: user.email,
+				display_name: user.display_name,
+			};
+
+			return c.json({ token, data });
 		},
-	);
+	)
+
+	// used to get the jwt holder's basic user info for ui and such.
+	.get("/checkin", validateJWT, async (c) => {
+		const jwt = c.get("jwtPayload");
+		const user = await prisma.user.findUnique({ where: { id: jwt.id } });
+
+		if (!user) {
+			return c.json({ message: "Invalid token." }, 401);
+		}
+
+		return c.json({ data: user });
+	});
 
 export default app;
