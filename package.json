@@ -5,7 +5,8 @@
 	"description": "",
 	"scripts": {
 		"dev:api": "pnpm --filter api dev",
-		"dev:admin": "pnpm --filter web-admin dev"
+		"dev:admin": "pnpm --filter web-admin dev",
+		"dev:www": "pnpm --filter web-public dev"
 	},
 	"repository": {
 		"type": "git",

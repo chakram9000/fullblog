@@ -12,7 +12,7 @@ import {
 } from "../lib/util.ts";
 import type { SignatureAlgorithm } from "hono/utils/jwt/jwa";
 
-// @TODO: route for getting a fresh token when already authorized?
+// @TODO: route for getting a fresh token when already authorized, for use in header and stuff (currently no way to get the jwt user's info)
 const app = new Hono()
 	.post(
 		"/signup",
