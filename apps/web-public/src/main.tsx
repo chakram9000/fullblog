@@ -4,7 +4,8 @@ import { routeTree } from "./routeTree.gen";
 import { createHonoClient } from "@blog/shared";
 
 if (!import.meta.env.VITE_ORIGIN_API) throw Error("API origin not specified");
-const client = createHonoClient(import.meta.env.VITE_ORIGIN_API);
+export const client = createHonoClient(import.meta.env.VITE_ORIGIN_API);
+
 const router = createRouter({
 	routeTree,
 	defaultPreload: "intent",

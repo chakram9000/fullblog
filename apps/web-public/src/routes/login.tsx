@@ -1,3 +1,4 @@
+import { useAuthStore } from "#/stores.ts";
 import { useForm } from "@tanstack/react-form";
 import {
 	createFileRoute,
@@ -10,7 +11,7 @@ import { useState } from "react";
 export const Route = createFileRoute("/login")({
 	beforeLoad: () => {
 		const jwt = localStorage.getItem("jwt");
-		if (jwt) throw redirect({ to: "/posts" });
+		if (jwt) throw redirect({ to: "/" });
 	},
 	component: RouteComponent,
 });
@@ -18,6 +19,7 @@ export const Route = createFileRoute("/login")({
 function RouteComponent() {
 	const { client: apiClient } = useRouteContext({ from: "__root__" });
 	const navigate = useNavigate();
+	const authStore = useAuthStore();
 
 	const [errorMessage, setErrorMessage] = useState("");
 	const form = useForm({
@@ -34,15 +36,9 @@ function RouteComponent() {
 				return;
 			}
 
-			if (data.role === "VIEWER") {
-				setErrorMessage(
-					"Sorry, you're not an author and can't access this dashboard.",
-				);
-				return;
-			}
-
 			localStorage.setItem("jwt", data.token);
-			navigate({ to: "/posts" });
+			authStore.login(data.data);
+			navigate({ to: "/" });
 		},
 	});
 

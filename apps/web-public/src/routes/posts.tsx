@@ -1,17 +1,7 @@
-import { fetchProtected } from "@blog/shared";
 import { useQuery } from "@tanstack/react-query";
-import {
-	createFileRoute,
-	Link,
-	redirect,
-	useRouteContext,
-} from "@tanstack/react-router";
+import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/posts")({
-	beforeLoad: () => {
-		const jwt = localStorage.getItem("jwt");
-		if (!jwt) throw redirect({ to: "/login" });
-	},
 	component: Posts,
 });
 
@@ -21,27 +11,23 @@ function Posts() {
 	const posts = useQuery({
 		queryKey: ["posts"],
 		queryFn: async () => {
-			const res = await fetchProtected(() => apiClient.api.posts.own.$get());
-			if (!res) return null;
+			const res = await apiClient.api.posts.$get();
 			return await res.json();
 		},
 	});
 
 	if (posts.isLoading) return;
-	if (posts.isError || (posts.data && !("data" in posts.data))) {
-		return <p>{posts.data && "message" in posts.data && posts.data.message}</p>;
+	if (posts.isError) {
+		return <p>An error occured</p>;
 	}
 
 	return (
 		<main>
-			<div className="flex items-center gap-2 text-sm">
-				<h1 className="text-2xl font-bold me-auto">
-					Welcome Mr. Author, here are your posts and drafts.
-				</h1>
-				<Link to="/posts/add" className="link">
-					New post
-				</Link>
-			</div>
+			<Link to="/" className="absolute top-4 left-4 link text-emerald-900">
+				Index
+			</Link>
+			<h1 className="text-2xl font-bold me-auto">Check out the posts!</h1>
+			<div className="h-px bg-emerald-900" />
 			{posts.data?.data.map((post) => (
 				<Link
 					to="/posts/$postId"
@@ -50,14 +36,7 @@ function Posts() {
 				>
 					<article className="bg-white shadow p-4 rounded flex flex-col gap-2">
 						<div className="flex items-center">
-							<h2 className="text-2xl font-bold italic me-auto">
-								{post.title}
-							</h2>
-							{post.is_published ? (
-								<p className="text-green-500">Published</p>
-							) : (
-								<p className="text-red-500">Draft</p>
-							)}
+							<h2 className="text-2xl font-bold italic">{post.title}</h2>
 						</div>
 						<p className="text-lg text-slate-500">
 							{post.content.length > 50

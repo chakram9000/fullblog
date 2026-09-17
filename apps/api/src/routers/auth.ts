@@ -66,6 +66,7 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 				id: newUser.id,
 				email: newUser.email,
 				display_name: newUser.display_name,
+				role: newUser.role,
 			};
 
 			return c.json({ token, data });
@@ -118,6 +119,7 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 				id: user.id,
 				email: user.email,
 				display_name: user.display_name,
+				role: user.role,
 			};
 
 			return c.json({ token, data });
@@ -127,7 +129,10 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 	// used to get the jwt holder's basic user info for ui and such.
 	.get("/checkin", validateJWT, async (c) => {
 		const jwt = c.get("jwtPayload");
-		const user = await prisma.user.findUnique({ where: { id: jwt.id } });
+		const user = await prisma.user.findUnique({
+			where: { id: jwt.id },
+			omit: { role: false },
+		});
 
 		if (!user) {
 			return c.json({ message: "Invalid token." }, 401);
