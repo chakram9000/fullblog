@@ -20,6 +20,13 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 		const posts = await prisma.post.findMany({
 			where: { is_published: true },
 			orderBy: { created_at: "desc" },
+			include: {
+				_count: {
+					select: {
+						likes: true,
+					},
+				},
+			},
 		});
 
 		return c.json({ data: posts });
@@ -34,6 +41,13 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 		const posts = await prisma.post.findMany({
 			where: { authorId: jwtPayload.id },
 			orderBy: { edited_at: "desc" },
+			include: {
+				_count: {
+					select: {
+						likes: true,
+					},
+				},
+			},
 		});
 
 		return c.json({ data: posts });
@@ -53,13 +67,10 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 			const jwt = c.get("jwtPayload") as JWTPayload | undefined; // see some() middleware
 			const param = c.req.valid("param");
 
+			// We don't include likes here because the client will have it's own state for it anyway, and would use /:postId/likes.
 			const post = await prisma.post.findUnique({
-				where: {
-					id: param.postId,
-				},
-				include: {
-					author: true,
-				},
+				where: { id: param.postId },
+				include: { author: true },
 			});
 
 			if (!post) {
