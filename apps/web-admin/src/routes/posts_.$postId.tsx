@@ -90,7 +90,6 @@ function Post() {
 				{data?.data.content}
 			</p>
 			<div className="h-px bg-emerald-600"></div>
-			<Comments apiClient={apiClient} postId={postId} />
 		</main>
 	);
 }

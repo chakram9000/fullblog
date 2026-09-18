@@ -94,11 +94,9 @@ function RouteComponent() {
 				<form.Subscribe
 					selector={(state) => [state.canSubmit, state.isSubmitting]}
 					children={([canSubmit, isSubmitting]) => (
-						<>
-							<button type="submit" disabled={!canSubmit}>
-								{isSubmitting ? "..." : "Submit"}
-							</button>
-						</>
+						<button type="submit" disabled={!canSubmit}>
+							{isSubmitting ? "..." : "Submit"}
+						</button>
 					)}
 				/>
 			</form>

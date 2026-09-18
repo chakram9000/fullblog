@@ -26,5 +26,3 @@ export const useAuthStore = create<AuthState>()((set) => ({
 		set({ user: data.data });
 	},
 }));
-
-useAuthStore.getState().checkin();
