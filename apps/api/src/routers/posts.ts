@@ -9,10 +9,12 @@ import { zValidatorErrorsHook } from "../lib/util.ts";
 import { validateJWT } from "../lib/middlewares.ts";
 
 import comments from "./comments.ts";
+import likes from "./likes.ts";
 import { some } from "hono/combine";
 
 const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 	.route("/:postId/comments", comments)
+	.route("/:postId/likes", likes)
 
 	.get("/", async (c) => {
 		const posts = await prisma.post.findMany({

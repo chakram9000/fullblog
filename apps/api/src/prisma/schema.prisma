@@ -24,13 +24,13 @@ model User {
 
   comments Comment[]
   posts    Post[]
+  likes    Like[]
 }
 
 model Post {
   id           Int      @id @default(autoincrement())
   title        String
   content      String
-  likes        Int      @default(0)
   created_at   DateTime @default(now())
   edited_at    DateTime @default(now())
   is_published Boolean  @default(false)
@@ -38,6 +38,7 @@ model Post {
 
   author   User      @relation(fields: [authorId], references: [id], onDelete: Cascade)
   comments Comment[]
+  likes    Like[]
 }
 
 model Comment {
@@ -49,4 +50,14 @@ model Comment {
 
   author User @relation(fields: [authorId], references: [id], onDelete: Cascade)
   post   Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+}
+
+model Like {
+  userId Int
+  postId Int
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  post Post @relation(fields: [postId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, postId])
 }
