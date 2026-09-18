@@ -36,7 +36,10 @@ function Posts() {
 				>
 					<article className="bg-white shadow p-4 rounded flex flex-col gap-2">
 						<div className="flex items-center">
-							<h2 className="text-2xl font-bold italic">{post.title}</h2>
+							<h2 className="text-2xl font-bold italic me-auto">
+								{post.title}
+							</h2>
+							<p>{post._count.likes} Likes</p>
 						</div>
 						<p className="text-lg text-slate-500">
 							{post.content.length > 50

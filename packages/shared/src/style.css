@@ -25,7 +25,7 @@
 
   input,
   textarea {
-    @apply border-2 border-black p-1 bg-white;
+    @apply border-2 border-black p-1 bg-white min-h-8;
   }
 
   form {

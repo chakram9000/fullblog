@@ -1,3 +1,4 @@
+import { Like } from "#/components/Like.tsx";
 import { useAuthStore } from "#/stores.ts";
 import { Comments } from "@blog/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
@@ -39,6 +40,7 @@ function Post() {
 				<h1 className="text-2xl font-bold italic me-auto">
 					{data?.data.title}
 				</h1>
+				<Like postId={postId} apiClient={apiClient} />
 			</div>
 			<p className="text-lg text-black text-justify wrap-break-word">
 				{data?.data.content}

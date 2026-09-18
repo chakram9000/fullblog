@@ -1,0 +1,4 @@
+signup
+comment deletion
+header
+revise admin

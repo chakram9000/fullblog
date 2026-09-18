@@ -42,21 +42,21 @@ export function AddCommentForm({ apiClient, tanQueryClient, postId }: Props) {
 				e.preventDefault();
 				form.handleSubmit();
 			}}
-			className="gap-2"
+			className="gap-2 mb-4"
 		>
 			<form.Field
 				name="content"
 				children={(field) => {
 					return (
-						<input
+						<textarea
 							required
-							type="text"
 							placeholder="Start typing..."
 							id={field.name}
 							name={field.name}
 							value={field.state.value}
 							onBlur={field.handleBlur}
 							onChange={(e) => field.handleChange(e.target.value)}
+							className="resize-none [field-sizing:content]"
 						/>
 					);
 				}}
