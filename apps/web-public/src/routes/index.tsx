@@ -19,6 +19,10 @@ function Home() {
 					Have an account?{" "}
 					<Link to="/login" className="link">
 						Login.
+					</Link>{" "}
+					Don't?{" "}
+					<Link to="/signup" className="link">
+						Signup.
 					</Link>
 				</p>
 			)}
