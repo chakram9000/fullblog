@@ -21,6 +21,7 @@ const app = new Hono<{ Variables: JwtVariables<JWTPayload> }>()
 			where: { is_published: true },
 			orderBy: { created_at: "desc" },
 			include: {
+				author: true,
 				_count: {
 					select: {
 						likes: true,

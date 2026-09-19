@@ -33,9 +33,6 @@ function Post() {
 
 	return (
 		<main className="gap-4">
-			<Link to="/posts" className="absolute top-4 left-4 link text-emerald-900">
-				See all posts
-			</Link>
 			<div className="flex items-center gap-2 text-sm">
 				<h1 className="text-2xl font-bold italic me-auto">
 					{data?.data.title}

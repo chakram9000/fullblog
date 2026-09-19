@@ -23,9 +23,6 @@ function Posts() {
 
 	return (
 		<main>
-			<Link to="/" className="absolute top-4 left-4 link text-emerald-900">
-				Index
-			</Link>
 			<h1 className="text-2xl font-bold me-auto">Check out the posts!</h1>
 			<div className="h-px bg-emerald-900" />
 			{posts.data?.data.map((post) => (
@@ -34,11 +31,12 @@ function Posts() {
 					params={{ postId: post.id.toString() }}
 					key={`post_${post.id}`}
 				>
-					<article className="bg-white shadow p-4 rounded flex flex-col gap-2">
-						<div className="flex items-center">
-							<h2 className="text-2xl font-bold italic me-auto">
-								{post.title}
-							</h2>
+					<article className="bg-white shadow-xs p-4 rounded-sm flex flex-col gap-2">
+						<div className="flex items-center gap-2">
+							<h2 className="text-xl font-bold">{post.title}</h2>
+							<p className="text-sm text-slate-400 italic me-auto">
+								by {post.author.display_name}
+							</p>
 							<p>{post._count.likes} Likes</p>
 						</div>
 						<p className="text-lg text-slate-500">
