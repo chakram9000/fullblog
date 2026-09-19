@@ -1,4 +1,4 @@
-import { QueryClient, useQuery } from "@tanstack/react-query";
+import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import type { HonoClient } from "../api.ts";
 import { AddCommentForm } from "./AddCommentForm.tsx";
 import { clsx } from "clsx";
@@ -35,6 +35,23 @@ export function Comments({
 		},
 	});
 
+	const deletionMutation = useMutation({
+		mutationKey: ["comments", postId],
+		mutationFn: async (commentId: number) => {
+			if (!confirm("Are you sure you want to delete this comment?")) return;
+
+			const res = await apiClient.api.posts[":postId"].comments[
+				":commentId"
+			].$delete({
+				param: { postId, commentId: commentId.toString() },
+			});
+
+			if (!res.ok) return;
+
+			tanQueryClient.invalidateQueries({ queryKey: ["comments", postId] });
+		},
+	});
+
 	if (isLoading) return;
 	if (isError || !comments) {
 		return <p>An error occured.</p>;
@@ -55,7 +72,7 @@ export function Comments({
 						<div
 							className={clsx(
 								"flex flex-col items-stretch card",
-								userId === c.author.id && "border border-emerald-500",
+								userId === c.authorId && "border border-emerald-500",
 							)}
 							key={`comment_${c.id}`}
 						>
@@ -70,6 +87,14 @@ export function Comments({
 									{">"}
 								</p>
 								<p className="opacity-60">{c.created_at}</p>
+								{c.authorId === userId && (
+									<button
+										className="link text-red-500"
+										onClick={() => deletionMutation.mutate(c.id)}
+									>
+										DEL
+									</button>
+								)}
 							</div>
 							<p>{c.content}</p>
 						</div>
