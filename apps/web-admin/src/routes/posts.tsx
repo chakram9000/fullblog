@@ -1,3 +1,4 @@
+import { useAuthStore } from "#/stores.ts";
 import { fetchProtected } from "@blog/shared";
 import { useQuery } from "@tanstack/react-query";
 import {
@@ -16,6 +17,7 @@ export const Route = createFileRoute("/posts")({
 });
 
 function Posts() {
+	const user = useAuthStore((s) => s.user);
 	const { client: apiClient } = useRouteContext({ from: "__root__" });
 
 	const posts = useQuery({
@@ -36,7 +38,7 @@ function Posts() {
 		<main>
 			<div className="flex items-center gap-2 text-sm">
 				<h1 className="text-2xl font-bold me-auto">
-					Welcome Mr. Author, here are your posts and drafts.
+					Welcome {user?.display_name}, here are your posts and drafts.
 				</h1>
 				<Link to="/posts/add" className="link">
 					New post

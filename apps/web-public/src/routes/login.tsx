@@ -19,7 +19,7 @@ export const Route = createFileRoute("/login")({
 function RouteComponent() {
 	const { client: apiClient } = useRouteContext({ from: "__root__" });
 	const navigate = useNavigate();
-	const authStore = useAuthStore();
+	const storeLogin = useAuthStore((s) => s.login);
 
 	const [errorMessage, setErrorMessage] = useState("");
 	const form = useForm({
@@ -37,7 +37,7 @@ function RouteComponent() {
 			}
 
 			localStorage.setItem("jwt", data.token);
-			authStore.login(data.data);
+			storeLogin(data.data);
 			navigate({ to: "/" });
 		},
 	});

@@ -1,8 +1,11 @@
 import { fetchProtected } from "@blog/shared";
 import { useForm } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
-import type React from "react";
+import {
+	createFileRoute,
+	useBlocker,
+	useRouteContext,
+} from "@tanstack/react-router";
 import { useState } from "react";
 
 export const Route = createFileRoute("/posts_/$postId_/edit")({
@@ -60,28 +63,25 @@ function EditPost() {
 		},
 	});
 
-	const onAbortConfirmation = (
-		e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
-	) => {
-		// no need to check if the post's data itself is botched for some reason.
-		if (!data || !("data" in data)) return;
+	useBlocker({
+		shouldBlockFn: () => {
+			// no need to check if the post's data itself is botched for some reason.
+			if (!data || !("data" in data)) return false;
 
-		// check if state differs from api's
-		const formValues = form.state.values;
-		if (
-			formValues.title !== data.data.title ||
-			formValues.content !== data.data.content
-		) {
+			// check if state differs from api's
+			const formValues = form.state.values;
 			if (
-				!confirm(
-					"You haven't saved! Are you sure you want to quit? All changes would be lost.",
-				)
+				formValues.title !== data.data.title ||
+				formValues.content !== data.data.content
 			) {
-				e.preventDefault();
-				e.stopPropagation();
+				return !confirm(
+					"You haven't saved! Are you sure you want to quit? All changes would be lost.",
+				);
 			}
-		}
-	};
+
+			return true;
+		},
+	});
 
 	if (isLoading) return;
 	if (isError || (data && !("data" in data))) {
@@ -90,14 +90,6 @@ function EditPost() {
 
 	return (
 		<main className="gap-2">
-			<Link
-				to="/posts/$postId"
-				params={{ postId }}
-				onClick={onAbortConfirmation}
-				className="absolute top-4 left-4 link text-emerald-900"
-			>
-				See post preview
-			</Link>
 			<form
 				onSubmit={(e) => {
 					e.stopPropagation();

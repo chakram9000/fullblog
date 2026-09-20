@@ -3,7 +3,7 @@ import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import {
 	createFileRoute,
-	Link,
+	useBlocker,
 	useNavigate,
 	useRouteContext,
 } from "@tanstack/react-router";
@@ -14,6 +14,14 @@ export const Route = createFileRoute("/posts_/add")({
 });
 
 function NewPost() {
+	useBlocker({
+		shouldBlockFn: () => {
+			return !confirm(
+				"Are you sure you want to leave? This post will be lost.",
+			);
+		},
+	});
+
 	const { client: apiClient } = useRouteContext({ from: "__root__" });
 	const queryClient = useQueryClient();
 	const navigate = useNavigate();
@@ -45,24 +53,8 @@ function NewPost() {
 		},
 	});
 
-	const onAbortConfirmation = (
-		e: React.MouseEvent<HTMLAnchorElement, MouseEvent>,
-	) => {
-		if (!confirm("Are you sure you want to quit? All changes would be lost.")) {
-			e.preventDefault();
-			e.stopPropagation();
-		}
-	};
-
 	return (
 		<main className="gap-2">
-			<Link
-				to="/posts"
-				className="absolute top-4 left-4 link"
-				onClick={onAbortConfirmation}
-			>
-				See all posts
-			</Link>
 			<form
 				onSubmit={(e) => {
 					e.stopPropagation();

@@ -1,3 +1,4 @@
+import { useAuthStore } from "#/stores.ts";
 import { useForm } from "@tanstack/react-form";
 import {
 	createFileRoute,
@@ -17,6 +18,7 @@ export const Route = createFileRoute("/login")({
 
 function RouteComponent() {
 	const { client: apiClient } = useRouteContext({ from: "__root__" });
+	const storeLogin = useAuthStore((s) => s.login);
 	const navigate = useNavigate();
 
 	const [errorMessage, setErrorMessage] = useState("");
@@ -42,6 +44,7 @@ function RouteComponent() {
 			}
 
 			localStorage.setItem("jwt", data.token);
+			storeLogin(data.data);
 			navigate({ to: "/posts" });
 		},
 	});

@@ -1,5 +1,4 @@
 import { fetchProtected } from "@blog/shared";
-import { Comments } from "@blog/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	createFileRoute,
@@ -69,9 +68,6 @@ function Post() {
 
 	return (
 		<main className="gap-4">
-			<Link to="/posts" className="absolute top-4 left-4 link text-emerald-900">
-				See all posts
-			</Link>
 			<div className="flex items-center gap-2 text-sm">
 				<h1 className="text-2xl font-bold italic me-auto">
 					{data?.data.title}
@@ -89,7 +85,6 @@ function Post() {
 			<p className="text-lg text-black text-justify wrap-break-word">
 				{data?.data.content}
 			</p>
-			<div className="h-px bg-emerald-600"></div>
 		</main>
 	);
 }

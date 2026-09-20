@@ -12,19 +12,19 @@
 		"preview": "vite preview"
 	},
 	"dependencies": {
+		"@blog/shared": "workspace:*",
 		"@tailwindcss/vite": "^4.1.18",
 		"@tanstack/react-devtools": "latest",
 		"@tanstack/react-form": "^1.33.5",
 		"@tanstack/react-query": "^5.102.8",
 		"@tanstack/react-router": "1.170.38",
 		"@tanstack/react-router-devtools": "latest",
+		"api": "workspace:*",
 		"hono": "^4.13.7",
 		"react": "^19.2.0",
 		"react-dom": "^19.2.0",
 		"tailwindcss": "^4.1.18",
-
-		"api": "workspace:*",
-		"@blog/shared": "workspace:*"
+		"zustand": "^5.0.15"
 	},
 	"devDependencies": {
 		"@tanstack/devtools-vite": "latest",
