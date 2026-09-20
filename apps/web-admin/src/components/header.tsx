@@ -14,7 +14,7 @@ export function Header() {
 	return (
 		<HeaderLayout>
 			<Link to="/posts" className="text-2xl font-bold">
-				Blog's blog author dashboard
+				Fullblog Dashboard(tm)
 			</Link>
 			<nav className="flex items-center gap-5">
 				<Link to="/posts">your posts</Link>

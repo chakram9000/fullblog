@@ -15,7 +15,7 @@ export function Header() {
 	return (
 		<HeaderLayout>
 			<Link to="/" className="text-3xl font-bold">
-				Blog's blog
+				Fullblog
 			</Link>
 			<nav className="flex items-center gap-4">
 				<Link to="/posts">posts</Link>

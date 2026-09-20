@@ -10,7 +10,7 @@ function Home() {
 
 	return (
 		<main className="gap-3">
-			<h1>Welcome to the blog!</h1>
+			<h1>Welcome to Fullblog!</h1>
 			<div className="h-px bg-emerald-900" />
 			{user ? (
 				<p>You are logged in as {user.display_name}.</p>
