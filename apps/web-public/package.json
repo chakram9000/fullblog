@@ -20,6 +20,7 @@
 		"@tanstack/react-router": "1.170.38",
 		"@tanstack/react-router-devtools": "latest",
 		"api": "workspace:*",
+		"clsx": "^2.1.1",
 		"hono": "^4.13.7",
 		"react": "^19.2.0",
 		"react-dom": "^19.2.0",

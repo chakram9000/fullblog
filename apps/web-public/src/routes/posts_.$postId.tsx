@@ -38,13 +38,17 @@ function Post() {
 				</h1>
 				<Like postId={postId} apiClient={apiClient} />
 			</div>
+
 			<p className="text-sm text-slate-600 italic -mt-3">
 				by {data.data.author.display_name}
 			</p>
+
 			<p className="text-lg text-black text-justify wrap-break-word">
 				{data?.data.content}
 			</p>
+
 			<div className="h-px bg-emerald-600"></div>
+
 			{!isAuth && (
 				<p className="text-sm opacity-60">
 					Please{" "}
@@ -54,6 +58,7 @@ function Post() {
 					if you want to like or comment.
 				</p>
 			)}
+
 			<Comments
 				apiClient={apiClient}
 				tanQueryClient={tanQueryClient}

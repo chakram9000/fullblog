@@ -1,6 +1,7 @@
 import { useAuthStore } from "@blog/shared";
 import { type HonoClient } from "@blog/shared";
 import { useMutation, useQuery } from "@tanstack/react-query";
+import { clsx } from "clsx";
 
 interface Props {
 	postId: string;
@@ -36,16 +37,16 @@ export function Like({ postId, apiClient }: Props) {
 	if (isLoading || isError || !data || !("data" in data)) return;
 
 	return (
-		<div className="text-emerald-800">
+		<div>
 			{user ? (
 				<button
-					className="hover:cursor-pointer"
+					className="hover:cursor-pointer text-emeralt-700 px-2 py-1 bg-white border-2 border-emerald-200 rounded-sm"
 					onClick={() => mutation.mutate()}
 				>
 					{data.data} Likes
 				</button>
 			) : (
-				<p>{data.data} Likes</p>
+				<p className="text-emerald-800">{data.data} Likes</p>
 			)}
 		</div>
 	);
