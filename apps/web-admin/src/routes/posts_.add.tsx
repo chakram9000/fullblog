@@ -3,6 +3,7 @@ import { useForm } from "@tanstack/react-form";
 import { useQueryClient } from "@tanstack/react-query";
 import {
 	createFileRoute,
+	redirect,
 	useBlocker,
 	useNavigate,
 	useRouteContext,
@@ -10,6 +11,10 @@ import {
 import { useState } from "react";
 
 export const Route = createFileRoute("/posts_/add")({
+	beforeLoad: () => {
+		const jwt = localStorage.getItem("jwt");
+		if (!jwt) throw redirect({ to: "/login" });
+	},
 	component: NewPost,
 });
 

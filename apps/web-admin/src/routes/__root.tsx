@@ -6,7 +6,7 @@ import { TanStackDevtools } from "@tanstack/react-devtools";
 import "../styles.css";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { HonoClient } from "@blog/shared";
-import { useAuthStore } from "#/stores.ts";
+import { useAuthStore } from "@blog/shared";
 import { Header } from "#/components/header.tsx";
 
 interface RouterContext {
@@ -26,17 +26,6 @@ function RootComponent() {
 		<QueryClientProvider client={queryClient}>
 			{user && <Header />}
 			<Outlet />
-			<TanStackDevtools
-				config={{
-					position: "bottom-right",
-				}}
-				plugins={[
-					{
-						name: "TanStack Router",
-						render: <TanStackRouterDevtoolsPanel />,
-					},
-				]}
-			/>
 		</QueryClientProvider>
 	);
 }

@@ -1,4 +1,4 @@
-import { useAuthStore } from "#/stores.ts";
+import { useAuthStore } from "@blog/shared";
 import { createFileRoute, Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({

@@ -1,4 +1,4 @@
-import { useAuthStore } from "#/stores.ts";
+import { useAuthStore } from "@blog/shared";
 import { fetchProtected } from "@blog/shared";
 import { useQuery } from "@tanstack/react-query";
 import {

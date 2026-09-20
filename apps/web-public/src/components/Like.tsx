@@ -1,4 +1,4 @@
-import { useAuthStore } from "#/stores.ts";
+import { useAuthStore } from "@blog/shared";
 import { type HonoClient } from "@blog/shared";
 import { useMutation, useQuery } from "@tanstack/react-query";
 

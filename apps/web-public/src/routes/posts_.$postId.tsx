@@ -1,5 +1,5 @@
 import { Like } from "#/components/Like.tsx";
-import { useAuthStore } from "#/stores.ts";
+import { useAuthStore } from "@blog/shared";
 import { Comments } from "@blog/shared";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";

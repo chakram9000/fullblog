@@ -1,9 +1,6 @@
-import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
-
-import { TanStackRouterDevtoolsPanel } from "@tanstack/react-router-devtools";
-import { TanStackDevtools } from "@tanstack/react-devtools";
-
 import "../styles.css";
+
+import { Outlet, createRootRouteWithContext } from "@tanstack/react-router";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import type { HonoClient } from "@blog/shared";
 import { Header } from "#/components/Header.tsx";
@@ -23,17 +20,6 @@ function RootComponent() {
 		<QueryClientProvider client={queryClient}>
 			<Header />
 			<Outlet />
-			<TanStackDevtools
-				config={{
-					position: "bottom-right",
-				}}
-				plugins={[
-					{
-						name: "TanStack Router",
-						render: <TanStackRouterDevtoolsPanel />,
-					},
-				]}
-			/>
 		</QueryClientProvider>
 	);
 }

@@ -2,16 +2,17 @@ import ReactDOM from "react-dom/client";
 import { RouterProvider, createRouter } from "@tanstack/react-router";
 import { routeTree } from "./routeTree.gen";
 import { createHonoClient } from "@blog/shared";
-import { useAuthStore } from "./stores";
+import { useAuthStore } from "@blog/shared";
 
 if (!import.meta.env.VITE_ORIGIN_API) throw Error("API origin not specified");
 export const client = createHonoClient(import.meta.env.VITE_ORIGIN_API);
 
 // verify initial auth using auth store
-await useAuthStore.getState().checkin();
+await useAuthStore.getState().checkin(client);
 if (!useAuthStore.getState().user) {
 	localStorage.removeItem("jwt");
 }
+
 const router = createRouter({
 	routeTree,
 	defaultPreload: "intent",

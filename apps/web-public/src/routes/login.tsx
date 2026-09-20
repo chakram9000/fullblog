@@ -1,4 +1,4 @@
-import { useAuthStore } from "#/stores.ts";
+import { useAuthStore } from "@blog/shared";
 import { useForm } from "@tanstack/react-form";
 import {
 	createFileRoute,

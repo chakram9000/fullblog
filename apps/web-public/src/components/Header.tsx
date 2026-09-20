@@ -1,4 +1,4 @@
-import { useAuthStore } from "#/stores.ts";
+import { HeaderLayout, useAuthStore } from "@blog/shared";
 import { Link, useRouter } from "@tanstack/react-router";
 
 export function Header() {
@@ -13,25 +13,23 @@ export function Header() {
 	};
 
 	return (
-		<header className="bg-emerald-50 min-h-14 shadow flex items-center justify-center p-2 w-screen">
-			<div className="w-full max-w-6xl flex items-center justify-between">
-				<Link to="/" className="text-3xl font-bold">
-					Blog's blog
-				</Link>
-				<nav className="flex items-center gap-4">
-					<Link to="/posts">posts</Link>
-					{!user ? (
-						<>
-							<Link to="/login">login</Link>
-							<Link to="/signup">signup</Link>
-						</>
-					) : (
-						<>
-							<button onClick={handleLogout}>logout</button>
-						</>
-					)}
-				</nav>
-			</div>
-		</header>
+		<HeaderLayout>
+			<Link to="/" className="text-3xl font-bold">
+				Blog's blog
+			</Link>
+			<nav className="flex items-center gap-4">
+				<Link to="/posts">posts</Link>
+				{!user ? (
+					<>
+						<Link to="/login">login</Link>
+						<Link to="/signup">signup</Link>
+					</>
+				) : (
+					<>
+						<button onClick={handleLogout}>logout</button>
+					</>
+				)}
+			</nav>
+		</HeaderLayout>
 	);
 }

@@ -3,11 +3,18 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	createFileRoute,
 	Link,
+	redirect,
 	useNavigate,
 	useRouteContext,
 } from "@tanstack/react-router";
 
-export const Route = createFileRoute("/posts_/$postId")({ component: Post });
+export const Route = createFileRoute("/posts_/$postId")({
+	beforeLoad: () => {
+		const jwt = localStorage.getItem("jwt");
+		if (!jwt) throw redirect({ to: "/login" });
+	},
+	component: Post,
+});
 
 function Post() {
 	const { postId } = Route.useParams();

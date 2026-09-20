@@ -3,12 +3,17 @@ import { useForm } from "@tanstack/react-form";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import {
 	createFileRoute,
+	redirect,
 	useBlocker,
 	useRouteContext,
 } from "@tanstack/react-router";
 import { useState } from "react";
 
 export const Route = createFileRoute("/posts_/$postId_/edit")({
+	beforeLoad: () => {
+		const jwt = localStorage.getItem("jwt");
+		if (!jwt) throw redirect({ to: "/login" });
+	},
 	component: EditPost,
 });
 
