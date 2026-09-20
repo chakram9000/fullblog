@@ -6,7 +6,6 @@ import { createFileRoute, Link, useRouteContext } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/posts_/$postId")({ component: Post });
 
-// @TODO: likes.
 function Post() {
 	const { postId } = Route.useParams();
 	const user = useAuthStore((s) => s.user);
@@ -39,6 +38,9 @@ function Post() {
 				</h1>
 				<Like postId={postId} apiClient={apiClient} />
 			</div>
+			<p className="text-sm text-slate-600 italic -mt-3">
+				by {data.data.author.display_name}
+			</p>
 			<p className="text-lg text-black text-justify wrap-break-word">
 				{data?.data.content}
 			</p>

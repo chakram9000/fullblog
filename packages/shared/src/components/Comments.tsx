@@ -2,6 +2,8 @@ import { QueryClient, useMutation, useQuery } from "@tanstack/react-query";
 import type { HonoClient } from "../api.ts";
 import { AddCommentForm } from "./AddCommentForm.tsx";
 import { clsx } from "clsx";
+import { useState } from "react";
+import { EditCommentForm } from "./EditCommentForm.tsx";
 
 type CommentsProps = {
 	apiClient: HonoClient;
@@ -19,6 +21,8 @@ export function Comments({
 	userId,
 	showAddCommentForm,
 }: CommentsProps) {
+	const [commentToEditId, setCommentToEditId] = useState<number | null>(null);
+
 	const {
 		data: comments,
 		isLoading,
@@ -51,6 +55,13 @@ export function Comments({
 			tanQueryClient.invalidateQueries({ queryKey: ["comments", postId] });
 		},
 	});
+
+	const handleCommentEditDone = () => {
+		tanQueryClient.invalidateQueries({
+			queryKey: ["comments", postId],
+		});
+		setCommentToEditId(null);
+	};
 
 	if (isLoading) return;
 	if (isError || !comments) {
@@ -87,16 +98,34 @@ export function Comments({
 									{">"}
 								</p>
 								<p className="opacity-60">{c.created_at}</p>
-								{c.authorId === userId && (
-									<button
-										className="link text-red-500"
-										onClick={() => deletionMutation.mutate(c.id)}
-									>
-										DEL
-									</button>
+								{c.authorId === userId && c.id !== commentToEditId && (
+									<>
+										<button
+											className="link"
+											onClick={() => setCommentToEditId(c.id)}
+										>
+											Edit
+										</button>
+										<button
+											className="link text-red-500"
+											onClick={() => deletionMutation.mutate(c.id)}
+										>
+											DEL
+										</button>
+									</>
 								)}
 							</div>
-							<p>{c.content}</p>
+							{c.id !== commentToEditId ? (
+								<p>{c.content}</p>
+							) : (
+								<EditCommentForm
+									tanQueryClient={tanQueryClient}
+									postId={postId}
+									apiClient={apiClient}
+									comment={c}
+									doneCB={handleCommentEditDone}
+								/>
+							)}
 						</div>
 					))
 				: "No comments found."}

@@ -7,18 +7,26 @@ interface Props {
 	apiClient: HonoClient;
 	tanQueryClient: QueryClient;
 	postId: string;
+	comment: { id: number; content: string };
+	doneCB: () => void;
 }
 
-export function AddCommentForm({ apiClient, tanQueryClient, postId }: Props) {
+export function EditCommentForm({
+	apiClient,
+	tanQueryClient,
+	postId,
+	comment,
+	doneCB,
+}: Props) {
 	const [errorMessage, setErrorMessage] = useState("");
 	const form = useForm({
 		defaultValues: {
-			content: "",
+			content: comment.content,
 		},
 		onSubmit: async ({ value, formApi }) => {
 			const res = await fetchProtected(() =>
-				apiClient.api.posts[":postId"].comments.$post({
-					param: { postId },
+				apiClient.api.posts[":postId"].comments[":commentId"].$put({
+					param: { postId, commentId: comment.id.toString() },
 					form: value,
 				}),
 			);
@@ -32,6 +40,7 @@ export function AddCommentForm({ apiClient, tanQueryClient, postId }: Props) {
 
 			formApi.reset();
 			tanQueryClient.invalidateQueries({ queryKey: ["comments", postId] });
+			doneCB();
 		},
 	});
 
@@ -62,18 +71,23 @@ export function AddCommentForm({ apiClient, tanQueryClient, postId }: Props) {
 				}}
 			/>
 			{errorMessage && <p className="text-red-500">{errorMessage}</p>}
-			<form.Subscribe
-				selector={(state) => [state.canSubmit, state.isSubmitting]}
-				children={([canSubmit, isSubmitting]) => (
-					<button
-						type="submit"
-						disabled={!canSubmit}
-						className="h-8 p-1 text-sm"
-					>
-						{isSubmitting ? "..." : "Send comment"}
-					</button>
-				)}
-			/>
+			<div className="flex flex-row items-center *:flex-1 gap-4">
+				<form.Subscribe
+					selector={(state) => [state.canSubmit, state.isSubmitting]}
+					children={([canSubmit, isSubmitting]) => (
+						<button
+							type="submit"
+							disabled={!canSubmit}
+							className="h-8 p-1 text-sm"
+						>
+							{isSubmitting ? "..." : "Edit"}
+						</button>
+					)}
+				/>
+				<button className="bg-red-600 h-8 p-1 text-sm" onClick={() => doneCB()}>
+					Cancel
+				</button>
+			</div>
 		</form>
 	);
 }
